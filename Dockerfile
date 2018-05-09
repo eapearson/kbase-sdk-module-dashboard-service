@@ -41,9 +41,9 @@ RUN git clone --depth=1 https://github.com/kbase/kb_sdk /kb/kb_sdk \
 RUN mkdir -p /kb/module \
     && chmod -R a+rw /kb/module \
     && mkdir -p /kb/module/work/cache \
-
+    && cd /kb/module && PATH=$PATH:/kb/kb_sdk/bin make all
+    
 WORKDIR /kb/module
-RUN PATH=$PATH:/kb/kb_sdk/bin make all
 
 COPY ./deployment/docker/context/contents /kb/module
 
