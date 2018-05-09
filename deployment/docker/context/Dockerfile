@@ -6,8 +6,12 @@ MAINTAINER KBase Developer
 # any required dependencies for your module.
 
 RUN apt-get update \
+    && apt-get -y upgrade \
+    && apt-get -y dist-upgrade \
+    && apt-get -y autoremove \
     && apt-get -y install default-jdk ant vim sqlite3
 
+# install python dependencies
 RUN pip install --upgrade pip \
     && pip install coverage \
     && pip install jinja2 \
@@ -16,24 +20,17 @@ RUN pip install --upgrade pip \
     && pip install pylru \
     && pip install bsddb3 \
     && pip install nose \
-    && pip install 'python-dateutil==2.7.2'
-
-# update security libraries in the base image
-# in this modified dockerfile, we are installing or upgrading 
-# depends what is in the core python image.
-# TODO: document that here
-RUN pip install cffi --upgrade \
-    && pip install pyopenssl --upgrade \
-    && pip install ndg-httpsclient --upgrade \
-    && pip install pyasn1 --upgrade \
-    && pip install requests --upgrade \
-    && pip install 'requests[security]' --upgrade
+    && pip install 'requests[security]' \
+    && pip install 'python-dateutil==2.7.2' \
+    && pip install cffi \
+    && pip install ndg-httpsclient \
+    && pip install pyasn1 
 
 # -----------------------------------------
 
 RUN pip install pylru
 
-COPY ./contents /kb/module
+COPY . /kb/module
 RUN mkdir -p /kb/module/work/cache
 RUN chmod -R a+rw /kb/module
 
