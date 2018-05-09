@@ -38,15 +38,14 @@ RUN git clone --depth=1 https://github.com/kbase/kb_sdk /kb/kb_sdk \
     && cd /kb/kb_sdk \
     && make
 
-RUN chmod -R a+rw /kb/module
-RUN mkdir -p /kb/module/work/cache
+RUN mkdir -p /kb/module \
+    && chmod -R a+rw /kb/module \
+    && mkdir -p /kb/module/work/cache \
+
+WORKDIR /kb/module
 RUN PATH=$PATH:/kb/kb_sdk/bin make all
 
 COPY ./deployment/docker/context/contents /kb/module
-
-WORKDIR /kb/module
-
-RUN PATH=$PATH:/kb/kb_sdk/bin make all
 
 ENTRYPOINT [ "./scripts/entrypoint.sh" ]
 
