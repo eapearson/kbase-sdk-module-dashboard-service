@@ -26,8 +26,8 @@ class DashboardService:
     # the latter method is running.
     ######################################### noqa
     VERSION = "0.0.8"
-    GIT_URL = ""
-    GIT_COMMIT_HASH = "HEAD"
+    GIT_URL = "git@github.com:eapearson/kbase-sdk-module-dashboard-service.git"
+    GIT_COMMIT_HASH = "318694cf8f65261954cd2d28e29d7ad282c8a8c3"
 
     #BEGIN_CLASS_HEADER
     def _nm(self, ctx):

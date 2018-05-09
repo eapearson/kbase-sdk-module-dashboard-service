@@ -18,6 +18,8 @@ default: compile
 
 all: compile build build-startup-script build-executable-script build-test-script prepare-docker
 
+prepare-for-docker: compile copy-source-for-docker
+
 compile:
 	kb-sdk compile $(SPEC_FILE) \
 		--out $(LIB_DIR) \
@@ -71,7 +73,7 @@ install-clients:
 	kb-sdk install -c https://raw.githubusercontent.com/kbase/narrative_method_store/develop/NarrativeMethodStore.spec
 	kb-sdk install -d https://raw.githubusercontent.com/kbaseapps/DataPaletteService/master/DataPaletteService.spec
 
-prepare-docker:
+copy-source-for-docker:
 	@echo "Copying files to docker context contents"
 	cd $(DIR)/deployment; bash ./tools/prepare-docker.sh
 

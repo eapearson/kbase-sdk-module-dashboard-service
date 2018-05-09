@@ -596,9 +596,6 @@ def process_async_cli(input_file_path, output_file_path, token):
                 'error': {'code': jre.code,
                           'name': jre.message,
                           'message': jre.data,
-                          'service': ctx['module'],
-                          'method': ctx['method'],
-                          'params': req['params'],
                           'error': trace}
                 }
     except Exception:
@@ -608,9 +605,6 @@ def process_async_cli(input_file_path, output_file_path, token):
                 'error': {'code': 0,
                           'name': 'Unexpected Server Error',
                           'message': 'An unexpected server error occurred',
-                          'service': ctx['module'],
-                          'method': ctx['method'],
-                          'params': req['params'],
                           'error': trace}
                 }
     if 'error' in resp:

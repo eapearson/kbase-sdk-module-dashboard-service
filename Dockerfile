@@ -36,7 +36,7 @@ RUN pip install cffi --upgrade \
 # -----------------------------------------
 RUN git clone --depth=1 https://github.com/kbase/kb_sdk /kb/kb_sdk \
     && cd /kb/kb_sdk \
-    && make
+    && make prepare-for-docker
 
 
 COPY ./deployment/docker/context/contents /kb/module
