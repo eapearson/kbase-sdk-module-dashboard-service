@@ -16,7 +16,7 @@ DEV_DEPLOY_CONTENTS_DIR = $(DIR)/deployment/docker/context/contents
 
 default: compile
 
-all: compile build build-startup-script build-executable-script build-test-script
+all: compile build build-startup-script build-executable-script build-test-script prepare-docker
 
 compile:
 	kb-sdk compile $(SPEC_FILE) \
@@ -28,9 +28,6 @@ compile:
 		--java \
 		--pysrvname $(SERVICE_CAPS).$(SERVICE_CAPS)Server \
 		--pyimplname $(SERVICE_CAPS).$(SERVICE_CAPS)Impl;
-
-build:
-	chmod +x $(SCRIPTS_DIR)/entrypoint.sh
 
 build-executable-script:
 	mkdir -p $(LBIN_DIR)
@@ -70,6 +67,9 @@ install-clients:
 	kb-sdk install -c https://raw.githubusercontent.com/kbase/workspace_deluxe/master/workspace.spec
 	kb-sdk install -c https://raw.githubusercontent.com/kbase/narrative_method_store/develop/NarrativeMethodStore.spec
 	kb-sdk install -d https://raw.githubusercontent.com/kbaseapps/DataPaletteService/master/DataPaletteService.spec
+
+prepare-docker:
+	cd $(DIR)/deployment; bash ./tools/prepare-docker.sh
 
 sdk-test: 
 	cd $(DIR)/deployment; bash ./tools/prepare-docker.sh
