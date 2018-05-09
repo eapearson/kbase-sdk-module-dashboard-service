@@ -29,6 +29,9 @@ compile:
 		--pysrvname $(SERVICE_CAPS).$(SERVICE_CAPS)Server \
 		--pyimplname $(SERVICE_CAPS).$(SERVICE_CAPS)Impl;
 
+build: 
+	chmod +x $(SCRIPTS_DIR)/entrypoint.sh
+
 build-executable-script:
 	mkdir -p $(LBIN_DIR)
 	echo '#!/bin/bash' > $(LBIN_DIR)/$(EXECUTABLE_SCRIPT_NAME)
@@ -69,6 +72,7 @@ install-clients:
 	kb-sdk install -d https://raw.githubusercontent.com/kbaseapps/DataPaletteService/master/DataPaletteService.spec
 
 prepare-docker:
+	@echo "Copying files to docker context contents"
 	cd $(DIR)/deployment; bash ./tools/prepare-docker.sh
 
 sdk-test: 
