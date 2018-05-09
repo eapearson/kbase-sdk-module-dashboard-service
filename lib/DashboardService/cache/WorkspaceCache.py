@@ -17,7 +17,7 @@ def get_path(from_dict, path):
 
 
 class WorkspaceCache:
-    def __init__(self, path=None, url=None, token=None):
+    def __init__(self, path=None, url=None, username=None, token=None):
         if path is None:
             raise ValueError('The "path" argument is required')
         parent_dir = os.path.dirname(path)
@@ -29,6 +29,8 @@ class WorkspaceCache:
         if url is None:
             raise ValueError('The "url" argument is required')
         self.url = url
+
+        self.username = username
 
         # if token is None:
         #     raise ValueError('The "token" argument is required')
@@ -57,7 +59,7 @@ class WorkspaceCache:
             url=self.url,
             token=self.token
         )
-        workspaces_for_perms = [{'id': wsid} for (wsid, _ts) in keys]
+        workspaces_for_perms = [{'id': wsid} for (_username, wsid, _ts) in keys]
         result, error = ws_client.call_func('get_permissions_mass', [{
             'workspaces': workspaces_for_perms
         }])
@@ -98,14 +100,20 @@ class WorkspaceCache:
         return result
 
     def make_cache_key(self, key):
-        return '.'.join([str(p) for p in key])
+        (username, id, timestamp) = key
+        return '.'.join([username, str(id), str(timestamp)])
+
+    def parse_cache_key(self, key):
+        (username, id, timestamp) = key.split('.')
+        return [username, int(id), int(timestamp)]
 
     def setone(self, cache_key, value):
         # cache_key = self.make_cache_key(key)
         self.db.put(cache_key.encode('utf8'), json.dumps(value).encode('utf8'))
 
     def get(self, workspaces):
-        cache_keys = [self.make_cache_key([ws['id'], ws['modDateMs']]) for ws in workspaces]
+        cache_keys = [self.make_cache_key([self.username, ws['id'], ws['modDateMs']])
+                      for ws in workspaces]
         items_to_return = dict()
         for (cache_key, value) in self.get_items(cache_keys):
             if value is not None:
@@ -113,7 +121,7 @@ class WorkspaceCache:
         if len(items_to_return) != len(cache_keys):
             missing_cache_keys = set(cache_keys).difference(items_to_return.keys())
             # TODO: make more compact
-            missing_keys = [[int(p) for p in k.split('.')] for k in missing_cache_keys]
+            missing_keys = [self.parse_cache_key(k) for k in missing_cache_keys]
             # missing_keys = []
             # for missing_key in missing_cache_keys:
             #     # TODO: avoid packing and unpacking the key...

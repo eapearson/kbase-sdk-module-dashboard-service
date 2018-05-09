@@ -214,13 +214,16 @@ class DashboardService:
                 },
                 'caches': {
                     'object': {
-                        'path': './work/object_cache.db'
+                        'path': self.cache_directory + '/object_cache.db'
                     },
                     'userprofile': {
-                        'path': './work/user_profile_cache.db'
+                        'path': self.cache_directory + '/user_profile_cache.db'
                     },
                     'app': {
-                        'path': './work/app_cache.db'
+                        'path': self.cache_directory + '/app_cache.db'
+                    },
+                    'workspace': {
+                        'path': self.cache_directory + '/workspace_cache.db'
                     }
                 }
             },
@@ -275,13 +278,16 @@ class DashboardService:
                 },
                 'caches': {
                     'object': {
-                        'path': './work/object_cache.db'
+                        'path': self.cache_directory + '/object_cache.db'
                     },
                     'userprofile': {
-                        'path': './work/user_profile_cache.db'
+                        'path': self.cache_directory + '/user_profile_cache.db'
                     },
                     'app': {
-                        'path': './work/app_cache.db'
+                        'path': self.cache_directory + '/app_cache.db'
+                    },
+                    'workspace': {
+                        'path': self.cache_directory + '/workspace_cache.db'
                     }
                 }
             },
@@ -325,13 +331,16 @@ class DashboardService:
                 },
                 'caches': {
                     'object': {
-                        'path': './work/object_cache.db'
+                        'path': self.cache_directory + '/object_cache.db'
                     },
                     'userprofile': {
-                        'path': './work/user_profile_cache.db'
+                        'path': self.cache_directory + '/user_profile_cache.db'
                     },
                     'app': {
-                        'path': './work/app_cache.db'
+                        'path': self.cache_directory + '/app_cache.db'
+                    },
+                    'workspace': {
+                        'path': self.cache_directory + '/workspace_cache.db'
                     }
                 }
             },
@@ -369,13 +378,16 @@ class DashboardService:
                 },
                 'caches': {
                     'object': {
-                        'path': './work/object_cache.db'
+                        'path': self.cache_directory + '/object_cache.db'
                     },
                     'userprofile': {
-                        'path': './work/user_profile_cache.db'
+                        'path': self.cache_directory + '/user_profile_cache.db'
                     },
                     'app': {
-                        'path': './work/app_cache.db'
+                        'path': self.cache_directory + '/app_cache.db'
+                    },
+                    'workspace': {
+                        'path': self.cache_directory + '/workspace_cache.db'
                     }
                 }
             },
@@ -413,18 +425,21 @@ class DashboardService:
                 },
                 'caches': {
                     'object': {
-                        'path': './work/object_cache.db'
+                        'path': self.cache_directory + '/object_cache.db'
                     },
                     'userprofile': {
-                        'path': './work/user_profile_cache.db'
+                        'path': self.cache_directory + '/user_profile_cache.db'
                     },
                     'app': {
-                        'path': './work/app_cache.db'
+                        'path': self.cache_directory + '/app_cache.db'
+                    },
+                    'workspace': {
+                        'path': self.cache_directory + '/workspace_cache.db'
                     }
                 }
             },
             token=ctx['token']
-        )   
+        )
 
         model.unshare_narrative_global(wsi=wsi)
         #END unshare_narrative_global

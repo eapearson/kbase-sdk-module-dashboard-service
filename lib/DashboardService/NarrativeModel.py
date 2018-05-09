@@ -130,7 +130,7 @@ class NarrativeModel(object):
                             app['title'] = app_info['name']
                             app['subtitle'] = app_info['subtitle']
                             app['iconUrl'] = app_icon_url
-               
+
                         apps.append(app)
                         cell_types['app'] += 1
 
@@ -159,6 +159,7 @@ class NarrativeModel(object):
         workspace_cache = WorkspaceCache(
             url=self.config['services']['Workspace'],
             path=self.config['caches']['workspace']['path'],
+            username=self.token, # just use the token for now...
             token=self.token
         )
         workspace_cache.start()
