@@ -16,9 +16,7 @@ DEV_DEPLOY_CONTENTS_DIR = $(DIR)/deployment/docker/context/contents
 
 default: compile
 
-all: compile build build-startup-script build-executable-script build-test-script prepare-docker
-
-prepare-for-docker: compile copy-source-for-docker
+all: compile build build-startup-script build-executable-script build-test-script copy-source-for-docker
 
 compile:
 	kb-sdk compile $(SPEC_FILE) \

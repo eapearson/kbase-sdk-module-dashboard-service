@@ -27,7 +27,7 @@ class DashboardService:
     ######################################### noqa
     VERSION = "0.0.8"
     GIT_URL = "git@github.com:eapearson/kbase-sdk-module-dashboard-service.git"
-    GIT_COMMIT_HASH = "318694cf8f65261954cd2d28e29d7ad282c8a8c3"
+    GIT_COMMIT_HASH = "1421396836789af110526793ab28a17297b87ddc"
 
     #BEGIN_CLASS_HEADER
     def _nm(self, ctx):
