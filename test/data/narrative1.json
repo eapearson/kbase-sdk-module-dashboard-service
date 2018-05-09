@@ -1,0 +1,69 @@
+{
+    "cells": [
+        {
+            "cell_type": "markdown", 
+            "metadata": {
+                "kbase": {
+                    "attributes": {
+                        "icon": "paragraph", 
+                        "title": "Header\n"
+                    }, 
+                    "cellState": {
+                        "selected": true, 
+                        "showTitle": false
+                    }
+                }
+            }, 
+            "source": "Header"
+        }
+    ], 
+    "metadata": {
+        "creator": null, 
+        "data_dependencies": [], 
+        "description": "", 
+        "format": "ipynb", 
+        "job_ids": {
+            "apps": [], 
+            "job_usage": {
+                "queue_time": 0, 
+                "run_time": 0
+            }, 
+            "methods": []
+        }, 
+        "kbase": {
+            "creator": null, 
+            "job_ids": {
+                "apps": [], 
+                "job_usage": {
+                    "queue_time": 0, 
+                    "run_time": 0
+                }, 
+                "methods": []
+            }, 
+            "name": "Untitled", 
+            "ws_name": null
+        }, 
+        "kernelspec": {
+            "display_name": "Python 2", 
+            "language": "python", 
+            "name": "python2"
+        }, 
+        "language_info": {
+            "codemirror_mode": {
+                "name": "ipython", 
+                "version": 2
+            }, 
+            "file_extension": ".py", 
+            "mimetype": "text/x-python", 
+            "name": "python", 
+            "nbconvert_exporter": "python", 
+            "pygments_lexer": "ipython2", 
+            "version": "2.7.6"
+        }, 
+        "name": "NarrativeCopyTest", 
+        "type": "KBaseNarrative.Narrative", 
+        "ws_name": null
+    }, 
+    "nbformat": 4, 
+    "nbformat_minor": 0
+}

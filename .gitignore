@@ -1,0 +1,7 @@
+test_local
+sdk.cfg
+*.pyc
+
+deployment/docker/context/contents
+*.bak-*
+workdir
