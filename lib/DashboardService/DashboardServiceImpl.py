@@ -6,6 +6,7 @@ from DashboardService.DynamicServiceCache import DynamicServiceCache
 from DashboardService.cache.AppCache import AppCache
 from DashboardService.cache.UserProfileCache import UserProfileCache
 from DashboardService.cache.ObjectCache import ObjectCache
+from DashboardService.cache.WorkspaceCache import WorkspaceCache
 from DashboardService.NarrativeModel import NarrativeModel, WorkspaceIdentity
 #END_HEADER
 
@@ -67,6 +68,13 @@ class DashboardService:
             url=config['workspace-url']
         )
         object_cache.initialize()
+
+        workspace_cache = WorkspaceCache(
+            path=self.cache_directory + '/workspace_cache.db',
+            url=config['workspace-url']
+        )
+        workspace_cache.initialize()
+
         #END_CONSTRUCTOR
         pass
 
@@ -149,6 +157,9 @@ class DashboardService:
                     },
                     'app': {
                         'path': self.cache_directory + '/app_cache.db'
+                    },
+                    'workspace': {
+                        'path': self.cache_directory + '/workspace_cache.db'
                     }
                 }
             },

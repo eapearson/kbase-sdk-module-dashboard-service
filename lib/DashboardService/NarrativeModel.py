@@ -5,6 +5,7 @@ from DashboardService.ServiceUtils import ServiceUtils
 from DashboardService.cache.UserProfileCache import UserProfileCache
 from DashboardService.cache.AppCache import AppCache
 from DashboardService.cache.ObjectCache import ObjectCache
+from DashboardService.cache.WorkspaceCache import WorkspaceCache
 
 
 class WorkspaceIdentity(object):
@@ -68,38 +69,6 @@ class NarrativeModel(object):
 
         return self.narrative_workspaces
 
-    def fetch_permissions(self):
-        ws_client = GenericClient(
-            module='Workspace',
-            url=self.config['services']['Workspace'],
-            token=self.token
-        )
-        workspaces_for_perms = [{'id': ws_info['id']} for ws_info in self.narrative_workspaces]
-        result, error = ws_client.call_func('get_permissions_mass', [{
-            'workspaces': workspaces_for_perms
-        }])
-        if error:
-            raise ValueError(error)
-        workspaces_permissions = result[0]
-
-        # Adjust the permissions:
-        # - filter out the public "shared user"
-        perms = []
-        for permissions in workspaces_permissions['perms']:
-            if permissions is None:
-                perms.append(None)
-            else:
-                perms.append(list(
-                    filter(
-                        lambda p: p['username'] != '*',
-                        map(
-                            lambda (username, perm): {'username': username, 'perm': perm},
-                            permissions.iteritems()
-                        )
-                    )
-                ))
-        return perms
-
     def is_valid_narrative_workspace(self, ws_info):
         metadata = ws_info[8]
         if 'narrative' in metadata:
@@ -112,7 +81,7 @@ class NarrativeModel(object):
         narrative_apps = []
         narrative_cell_types = []
         query_time = 0
-       
+
         for obj_info in narrative_objects:
             cell_types = {
                 'app': 0,
@@ -180,13 +149,21 @@ class NarrativeModel(object):
         then = time.time()
 
         # WORKSPACES
-        now = time.time()
         narrative_workspaces = self.fetch_narrative_workspaces()
+        now = time.time()
         stats.append(['list_workspace', now - then])
         then = now
 
-        # PERMISSIONS
-        narrative_workspaces_perms = self.fetch_permissions()
+        # PERMISSION
+       
+        workspace_cache = WorkspaceCache(
+            url=self.config['services']['Workspace'],
+            path=self.config['caches']['workspace']['path'],
+            token=self.token
+        )
+        workspace_cache.start()
+        # workspace_ids = [ws['id'] for ws in narrative_workspaces]
+        narrative_workspaces_perms = workspace_cache.get(narrative_workspaces)
         now = time.time()
         stats.append(['get_permissions', now - then])
         then = now

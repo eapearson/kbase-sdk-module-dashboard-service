@@ -22,7 +22,7 @@ class UserProfileCache:
         parent_dir = os.path.dirname(path)
         if not os.path.isdir(parent_dir):
             raise ValueError('The "path" parent directory does not exist: ' + parent_dir)
-        
+
         self.path = path
 
         if url is None:
@@ -32,20 +32,16 @@ class UserProfileCache:
         self.db = bsddb3.db.DB()
 
     def start(self):
-        print('opening user profile cache')
-        print(self.path)
         self.db.open(self.path, None, bsddb3.db.DB_HASH, bsddb3.db.DB_RDONLY)
 
     def stop(self):
         self.db.close()
 
     def initialize(self):
-        print('opening user profile cache')
-        print(self.path)
         if os.path.isfile(self.path):
             # raise ValueError('The cache file indicated by "path" already exists: ' + self.path)
             os.remove(self.path)
-        
+
         self.db.open(self.path, None, bsddb3.db.DB_HASH, bsddb3.db.DB_CREATE)
         self.populate_cache()
         self.db.close()

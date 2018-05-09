@@ -58,11 +58,11 @@ class AppCache:
     def populate_cache(self):
         self.load_for_tag('release')
         self.load_for_tag('beta')
-        self.load_for_tag('dev')      
+        self.load_for_tag('dev')
 
     # public interface
 
-    def get(self, app_id): 
+    def get(self, app_id):
         value = self.db.get(app_id.encode('utf8'))
 
         if value is not None:
