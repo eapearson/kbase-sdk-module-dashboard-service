@@ -19,17 +19,18 @@ RUN pip install --upgrade pip \
     && pip install pylru \
     && pip install bsddb3 \
     && pip install nose \
+    && pip install requests \
     && pip install 'python-dateutil==2.7.2'
 
 # update security libraries in the base image
 # in this modified dockerfile, we are installing or upgrading 
 # depends what is in the core python image.
 # TODO: document that here
+    # && pip install requests --upgrade \
 RUN pip install cffi --upgrade \
     && pip install pyopenssl --upgrade \
     && pip install ndg-httpsclient --upgrade \
     && pip install pyasn1 --upgrade \
-    && pip install requests --upgrade \
     && pip install 'requests[security]' --upgrade
 
 # -----------------------------------------
