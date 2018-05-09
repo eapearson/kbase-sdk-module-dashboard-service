@@ -34,13 +34,13 @@ RUN pip install cffi --upgrade \
 
 # -----------------------------------------
 RUN git clone --depth=1 https://github.com/kbase/kb_sdk /kb/kb_sdk \
-    && cd /kb/kb_sdk \
+    && cd /kb/kb_sdk   \
     && make
 
 
 COPY ./deployment/docker/context/contents /kb/module
-RUN mkdir -p /kb/module/work/cache
 RUN chmod -R a+rw /kb/module
+RUN mkdir -p /kb/module/work/cache
 
 WORKDIR /kb/module
 
