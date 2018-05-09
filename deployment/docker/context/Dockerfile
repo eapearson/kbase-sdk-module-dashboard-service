@@ -37,10 +37,13 @@ RUN chmod -R a+rw /kb/module
 RUN git clone --depth=1 https://github.com/kbase/kb_sdk /kb/kb_sdk \
     && cd /kb/kb_sdk \
     && make
+    
+# RUN PATH=$PATH:/kb/kb_sdk/bin make all
 
 WORKDIR /kb/module
+ENV PATH="$PATH:/kb/kb_sdk/bin"
 
-RUN PATH=$PATH:/kb/kb_sdk/bin make all
+RUN make all
 
 ENTRYPOINT [ "./scripts/entrypoint.sh" ]
 

@@ -34,18 +34,13 @@ RUN git clone --depth=1 https://github.com/kbase/kb_sdk /kb/kb_sdk \
     && cd /kb/kb_sdk \
     && make
 
-# RUN echo "here we are: " && echo `pwd` 
-
 RUN mkdir -p /kb/module/work/cache \
     && chmod -R a+rw /kb/module
 
 WORKDIR /kb/module
+ENV PATH="$PATH:/kb/kb_sdk/bin"
 
-RUN echo "here we are: " && echo `pwd` 
-
-RUN echo `pwd` && cd /kb/module && echo `pwd` && PATH=$PATH:/kb/kb_sdk/bin make all
-
-RUN echo "here we are: " && echo `pwd` 
+RUN make all
 
 ENTRYPOINT [ "./scripts/entrypoint.sh" ]
 
