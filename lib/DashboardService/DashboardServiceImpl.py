@@ -6,8 +6,8 @@ from DashboardService.DynamicServiceCache import DynamicServiceCache
 from DashboardService.cache.AppCache import AppCache
 from DashboardService.cache.UserProfileCache import UserProfileCache
 from DashboardService.cache.ObjectCache import ObjectCache
-from DashboardService.cache.WorkspaceCache import WorkspaceCache
-from DashboardService.NarrativeModel import NarrativeModel, WorkspaceIdentity
+from DashboardService.cache.PermissionsCache import PermissionsCache
+from DashboardService.NarrativeModel import NarrativeModel, WorkspaceIdentity, ObjectIdentity
 #END_HEADER
 
 
@@ -27,8 +27,8 @@ class DashboardService:
     # the latter method is running.
     ######################################### noqa
     VERSION = "0.0.8"
-    GIT_URL = ""
-    GIT_COMMIT_HASH = ""
+    GIT_URL = "git@github.com:eapearson/kbase-sdk-module-dashboard-service.git"
+    GIT_COMMIT_HASH = "4c9b320b5c701ce0fd75ba63eef9a32d365d5fd9"
 
     #BEGIN_CLASS_HEADER
     def _nm(self, ctx):
@@ -69,11 +69,36 @@ class DashboardService:
         )
         object_cache.initialize()
 
-        workspace_cache = WorkspaceCache(
+        workspace_cache = PermissionsCache(
             path=self.cache_directory + '/workspace_cache.db',
             url=config['workspace-url']
         )
         workspace_cache.initialize()
+
+        self.call_config = {
+            'services': {
+                'Workspace': self.config['workspace-url'],
+                'NarrativeMethodStore': self.config['narrative-method-store-url'],
+                'UserProfile': self.config['user-profile-service-url']
+            },
+            'caches': {
+                'object': {
+                    'path': self.cache_directory + '/object_cache.db'
+                },
+                'userprofile': {
+                    'path': self.cache_directory + '/user_profile_cache.db'
+                },
+                'app': {
+                    'path': self.cache_directory + '/app_cache.db'
+                },
+                'workspace': {
+                    'path': self.cache_directory + '/workspace_cache.db'
+                },
+                'narrative': {
+                    'path': self.cache_directory + '/narrative_cache.db'
+                }
+            }
+        }
 
         #END_CONSTRUCTOR
         pass
@@ -142,27 +167,7 @@ class DashboardService:
         # mechanisms. Here we just need to pass it whatever it needs from here...
         #  model = self.make_model(token=ctx['token'])
         model = NarrativeModel(
-            config={
-                'services': {
-                    'Workspace': self.config['workspace-url'],
-                    'NarrativeMethodStore': self.config['narrative-method-store-url'],
-                    'UserProfile': self.config['user-profile-service-url']
-                },
-                'caches': {
-                    'object': {
-                        'path': self.cache_directory + '/object_cache.db'
-                    },
-                    'userprofile': {
-                        'path': self.cache_directory + '/user_profile_cache.db'
-                    },
-                    'app': {
-                        'path': self.cache_directory + '/app_cache.db'
-                    },
-                    'workspace': {
-                        'path': self.cache_directory + '/workspace_cache.db'
-                    }
-                }
-            },
+            config=self.call_config,
             token=ctx['token']
         )
 
@@ -194,46 +199,26 @@ class DashboardService:
     def delete_narrative(self, ctx, params):
         """
         :param params: instance of type "DeleteNarrativeParams" -> structure:
-           parameter "wsi" of type "WorkspaceIdentity" -> structure:
-           parameter "workspace" of type "ws_name", parameter "id" of type
-           "ws_id" (from workspace_deluxe Note too that naming conventions
-           for paramters using these types (may) also use the
-           workspace_deluxe conventions.)
+           parameter "obji" of type "ObjectIdentity" -> structure: parameter
+           "workspace_id" of type "ws_id" (from workspace_deluxe Note too
+           that naming conventions for parameters using these types (may)
+           also use the workspace_deluxe conventions. workspace), parameter
+           "object_id" of type "obj_id", parameter "version" of type "obj_ver"
         """
         # ctx is the context object
         #BEGIN delete_narrative
-        if 'wsi' not in params:
+        if 'obji' not in params:
             raise ValueError('"wsi" field, identifying the narrative workspace, required')
 
         model = NarrativeModel(
-            config={
-                'services': {
-                    'Workspace': self.config['workspace-url'],
-                    'NarrativeMethodStore': self.config['narrative-method-store-url'],
-                    'UserProfile': self.config['user-profile-service-url']
-                },
-                'caches': {
-                    'object': {
-                        'path': self.cache_directory + '/object_cache.db'
-                    },
-                    'userprofile': {
-                        'path': self.cache_directory + '/user_profile_cache.db'
-                    },
-                    'app': {
-                        'path': self.cache_directory + '/app_cache.db'
-                    },
-                    'workspace': {
-                        'path': self.cache_directory + '/workspace_cache.db'
-                    }
-                }
-            },
+            config=self.call_config,
             token=ctx['token']
         )
 
-        wsi = WorkspaceIdentity(workspace=params['wsi'].get('workspace'),
-                                id=params['wsi'].get('id'))
+        obji = ObjectIdentity(workspace_id=params['obji'].get('workspace_id'),
+                              object_id=params['obji'].get('object_id'))
 
-        model.delete_narrative(wsi=wsi)
+        model.delete_narrative(obji=obji)
         #END delete_narrative
         pass
 
@@ -243,12 +228,12 @@ class DashboardService:
            parameter "wsi" of type "WorkspaceIdentity" -> structure:
            parameter "workspace" of type "ws_name", parameter "id" of type
            "ws_id" (from workspace_deluxe Note too that naming conventions
-           for paramters using these types (may) also use the
-           workspace_deluxe conventions.), parameter "users" of list of type
-           "username", parameter "permission" of type "permission"
-           (Represents the permissions a user or users have to a workspace:
-           'a' - administrator. All operations allowed. 'w' - read/write. 'r'
-           - read. 'n' - no permissions.)
+           for parameters using these types (may) also use the
+           workspace_deluxe conventions. workspace), parameter "users" of
+           list of type "username", parameter "permission" of type
+           "permission" (Represents the permissions a user or users have to a
+           workspace: 'a' - administrator. All operations allowed. 'w' -
+           read/write. 'r' - read. 'n' - no permissions.)
         """
         # ctx is the context object
         #BEGIN share_narrative
@@ -256,8 +241,7 @@ class DashboardService:
             raise ValueError('"wsi" field, identifying the narrative workspace, ' +
                              'is required but was not provided')
 
-        wsi = WorkspaceIdentity(workspace=params['wsi'].get('workspace'),
-                                id=params['wsi'].get('id'))
+        wsi = WorkspaceIdentity(id=params['wsi'].get('id'))
 
         if 'users' not in params:
             raise ValueError('"users" field, a list of usernames with whom to share, ' +
@@ -270,27 +254,7 @@ class DashboardService:
         permission = params['permission']
 
         model = NarrativeModel(
-            config={
-                'services': {
-                    'Workspace': self.config['workspace-url'],
-                    'NarrativeMethodStore': self.config['narrative-method-store-url'],
-                    'UserProfile': self.config['user-profile-service-url']
-                },
-                'caches': {
-                    'object': {
-                        'path': self.cache_directory + '/object_cache.db'
-                    },
-                    'userprofile': {
-                        'path': self.cache_directory + '/user_profile_cache.db'
-                    },
-                    'app': {
-                        'path': self.cache_directory + '/app_cache.db'
-                    },
-                    'workspace': {
-                        'path': self.cache_directory + '/workspace_cache.db'
-                    }
-                }
-            },
+            config=self.call_config,
             token=ctx['token']
         )
 
@@ -304,9 +268,9 @@ class DashboardService:
            structure: parameter "wsi" of type "WorkspaceIdentity" ->
            structure: parameter "workspace" of type "ws_name", parameter "id"
            of type "ws_id" (from workspace_deluxe Note too that naming
-           conventions for paramters using these types (may) also use the
-           workspace_deluxe conventions.), parameter "users" of list of type
-           "username"
+           conventions for parameters using these types (may) also use the
+           workspace_deluxe conventions. workspace), parameter "users" of
+           list of type "username"
         """
         # ctx is the context object
         #BEGIN unshare_narrative
@@ -314,36 +278,19 @@ class DashboardService:
             raise ValueError('"wsi" field, identifying the narrative workspace, ' +
                              'is required but was not provided')
 
-        wsi = WorkspaceIdentity(workspace=params['wsi'].get('workspace'),
-                                id=params['wsi'].get('id'))
+        wsi = WorkspaceIdentity(id=params['wsi'].get('id'))
 
         if 'users' not in params:
             raise ValueError('"users" field, a list of usernames with whom to share, ' +
                              'is required but was not provided')
         users = params['users']
 
+        # if 'timestamp' not in params:
+        #     raise ValueError('"timestamp" field, the laste modified timestamp for '+
+        #                      'the narrative, is required but was not provided')
+
         model = NarrativeModel(
-            config={
-                'services': {
-                    'Workspace': self.config['workspace-url'],
-                    'NarrativeMethodStore': self.config['narrative-method-store-url'],
-                    'UserProfile': self.config['user-profile-service-url']
-                },
-                'caches': {
-                    'object': {
-                        'path': self.cache_directory + '/object_cache.db'
-                    },
-                    'userprofile': {
-                        'path': self.cache_directory + '/user_profile_cache.db'
-                    },
-                    'app': {
-                        'path': self.cache_directory + '/app_cache.db'
-                    },
-                    'workspace': {
-                        'path': self.cache_directory + '/workspace_cache.db'
-                    }
-                }
-            },
+            config=self.call_config,
             token=ctx['token']
         )
 
@@ -357,8 +304,8 @@ class DashboardService:
            structure: parameter "wsi" of type "WorkspaceIdentity" ->
            structure: parameter "workspace" of type "ws_name", parameter "id"
            of type "ws_id" (from workspace_deluxe Note too that naming
-           conventions for paramters using these types (may) also use the
-           workspace_deluxe conventions.)
+           conventions for parameters using these types (may) also use the
+           workspace_deluxe conventions. workspace)
         """
         # ctx is the context object
         #BEGIN share_narrative_global
@@ -366,31 +313,10 @@ class DashboardService:
             raise ValueError('"wsi" field, identifying the narrative workspace, ' +
                              'is required but was not provided')
 
-        wsi = WorkspaceIdentity(workspace=params['wsi'].get('workspace'),
-                                id=params['wsi'].get('id'))
+        wsi = WorkspaceIdentity(id=params['wsi'].get('id'))
 
         model = NarrativeModel(
-            config={
-                'services': {
-                    'Workspace': self.config['workspace-url'],
-                    'NarrativeMethodStore': self.config['narrative-method-store-url'],
-                    'UserProfile': self.config['user-profile-service-url']
-                },
-                'caches': {
-                    'object': {
-                        'path': self.cache_directory + '/object_cache.db'
-                    },
-                    'userprofile': {
-                        'path': self.cache_directory + '/user_profile_cache.db'
-                    },
-                    'app': {
-                        'path': self.cache_directory + '/app_cache.db'
-                    },
-                    'workspace': {
-                        'path': self.cache_directory + '/workspace_cache.db'
-                    }
-                }
-            },
+            config=self.call_config,
             token=ctx['token']
         )
 
@@ -404,8 +330,8 @@ class DashboardService:
            structure: parameter "wsi" of type "WorkspaceIdentity" ->
            structure: parameter "workspace" of type "ws_name", parameter "id"
            of type "ws_id" (from workspace_deluxe Note too that naming
-           conventions for paramters using these types (may) also use the
-           workspace_deluxe conventions.)
+           conventions for parameters using these types (may) also use the
+           workspace_deluxe conventions. workspace)
         """
         # ctx is the context object
         #BEGIN unshare_narrative_global
@@ -413,31 +339,10 @@ class DashboardService:
             raise ValueError('"wsi" field, identifying the narrative workspace, ' +
                              'is required but was not provided')
 
-        wsi = WorkspaceIdentity(workspace=params['wsi'].get('workspace'),
-                                id=params['wsi'].get('id'))
+        wsi = WorkspaceIdentity(id=params['wsi'].get('id'))
 
         model = NarrativeModel(
-            config={
-                'services': {
-                    'Workspace': self.config['workspace-url'],
-                    'NarrativeMethodStore': self.config['narrative-method-store-url'],
-                    'UserProfile': self.config['user-profile-service-url']
-                },
-                'caches': {
-                    'object': {
-                        'path': self.cache_directory + '/object_cache.db'
-                    },
-                    'userprofile': {
-                        'path': self.cache_directory + '/user_profile_cache.db'
-                    },
-                    'app': {
-                        'path': self.cache_directory + '/app_cache.db'
-                    },
-                    'workspace': {
-                        'path': self.cache_directory + '/workspace_cache.db'
-                    }
-                }
-            },
+            config=self.call_config,
             token=ctx['token']
         )
 

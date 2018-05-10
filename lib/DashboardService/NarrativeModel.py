@@ -5,30 +5,59 @@ from DashboardService.ServiceUtils import ServiceUtils
 from DashboardService.cache.UserProfileCache import UserProfileCache
 from DashboardService.cache.AppCache import AppCache
 from DashboardService.cache.ObjectCache import ObjectCache
-from DashboardService.cache.WorkspaceCache import WorkspaceCache
+from DashboardService.cache.PermissionsCache import PermissionsCache
 
 
 class WorkspaceIdentity(object):
-    def __init__(self, workspace=None, id=None):
+    def __init__(self, workspace=None, id=None, timestamp=None):
         if (workspace is None):
             if (id is None):
                 raise ValueError('either "workspace" or "id" are required')   
         elif (id is not None):
             raise ValueError('only one of "workspace" or "id" may be provided')
-        self.workspace_name = workspace
-        self.workspace_id = id
+        self._name = workspace
+        self._id = id
+
+        # also optional timestamp;
+        self._timestamp = timestamp
 
     def make_wsi(self):
         return {
-            'workspace': self.workspace_name,
-            'id': self.workspace_id
+            'id': self._id
         }
 
     def workspace(self):
-        return self.workspace_name
+        return self._name
+
+    def name(self):
+        return self._name
 
     def id(self):
-        return self.workspace_id
+        return self._id
+
+    def timestamp(self):
+        return self._timestamp
+
+
+class ObjectIdentity(object):
+    def __init__(self, workspace_id=None, object_id=None, version=None):
+        if (workspace_id is None):
+            raise ValueError('"workspace_id" is required for object identity')
+        if (object_id is None):
+            raise ValueError('"object_id" is required for object identity')
+
+        self._workspace_id = workspace_id
+        self._object_id = object_id
+        self._version = version
+
+    def workspace_id(self):
+        return self._workspace_id
+    
+    def object_id(self):
+        return self._object_id
+
+    def version(self):
+        return self._version
 
 
 class NarrativeModel(object):
@@ -156,10 +185,10 @@ class NarrativeModel(object):
 
         # PERMISSION
        
-        workspace_cache = WorkspaceCache(
+        workspace_cache = PermissionsCache(
             url=self.config['services']['Workspace'],
             path=self.config['caches']['workspace']['path'],
-            username=self.token, # just use the token for now...
+            username=self.token,   # just use the token for now...
             token=self.token
         )
         workspace_cache.start()
@@ -213,6 +242,10 @@ class NarrativeModel(object):
         to_get = [(ws['id'],
                   int(ws['metadata']['narrative']),
                   ws['modDateMs']) for ws in narrative_workspaces]
+
+        # to_get = [(ws['id'],
+        #           int(ws['metadata']['narrative']))
+        #           for ws in narrative_workspaces]
         narrative_objects = object_cache.get(to_get)
 
         now = time.time()
@@ -281,8 +314,8 @@ class NarrativeModel(object):
         }
         return result, stats
 
-    def delete_narrative(self, wsi=None):
-        if (wsi is None):
+    def delete_narrative(self, obji=None):
+        if (obji is None):
             raise ValueError('"wsi" is required')
 
         rpc = GenericClient(
@@ -291,7 +324,28 @@ class NarrativeModel(object):
             token=self.token
         )
 
+        # print("deleting workspace... %s" % (wsi.make_wsi()))
+        wsi = WorkspaceIdentity(id=obji.workspace_id())
         rpc.call_func('delete_workspace', [wsi.make_wsi()])
+
+        permissions_cache = PermissionsCache(
+            url=self.config['services']['Workspace'],
+            path=self.config['caches']['workspace']['path'],
+            username=self.token,  # just use the token for now...
+            token=self.token
+        )
+        permissions_cache.start()
+        permissions_cache.remove(wsi)
+
+        # TODO:
+        object_cache = ObjectCache(
+            url=self.config['services']['Workspace'],
+            path=self.config['caches']['object']['path'],
+            token=self.token
+        )
+        object_cache.start()
+        object_cache.remove(obji)
+
         pass
 
     def share_narrative(self, wsi=None, users=None, permission=None):
@@ -314,6 +368,17 @@ class NarrativeModel(object):
             'new_permission': permission,
             'users': users
         }])
+
+        # Then ensure that the cache for this workspace is
+        # refreshed.
+        workspace_cache = PermissionsCache(
+            url=self.config['services']['Workspace'],
+            path=self.config['caches']['workspace']['path'],
+            username=self.token,  # just use the token for now...
+            token=self.token
+        )
+        workspace_cache.start()
+        workspace_cache.refresh(wsi)
         pass
 
     def unshare_narrative(self, wsi=None, users=None):
@@ -322,18 +387,29 @@ class NarrativeModel(object):
         if (users is None):
             raise ValueError('"users" is required')
 
+        # First do the actual unsharing in the workspace.
         rpc = GenericClient(
             module='Workspace',
             url=self.config['services']['Workspace'],
             token=self.token
         )
-
         rpc.call_func('set_permissions', [{
-            'workspace': wsi.workspace(),
             'id': wsi.id(),
             'new_permission': 'n',
             'users': users
         }])
+
+        # Then ensure that the cache for this workspace is
+        # refreshed.
+        workspace_cache = PermissionsCache(
+            url=self.config['services']['Workspace'],
+            path=self.config['caches']['workspace']['path'],
+            username=self.token,  # just use the token for now...
+            token=self.token
+        )
+        workspace_cache.start()
+        workspace_cache.refresh(wsi)
+
         pass
 
     def share_narrative_global(self, wsi=None):
@@ -351,6 +427,10 @@ class NarrativeModel(object):
             'id': wsi.id(),
             'new_permission': 'r',
         }])
+
+        # Note: the global permissions are on the workspace info, which is
+        # fetched fresh for every narrative listing, so nothing to uncache.
+
         pass
 
     def unshare_narrative_global(self, wsi=None):
@@ -364,8 +444,11 @@ class NarrativeModel(object):
         )
 
         rpc.call_func('set_global_permission', [{
-            'workspace': wsi.workspace(),
             'id': wsi.id(),
             'new_permission': 'n',
         }])
+
+        # Note: the global permissions are on the workspace info, which is
+        # fetched fresh for every narrative listing, so nothing to uncache.
+
         pass

@@ -19,41 +19,41 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "wsi"
+    "obji"
 })
 public class DeleteNarrativeParams {
 
     /**
-     * <p>Original spec-file type: WorkspaceIdentity</p>
+     * <p>Original spec-file type: ObjectIdentity</p>
      * 
      * 
      */
-    @JsonProperty("wsi")
-    private WorkspaceIdentity wsi;
+    @JsonProperty("obji")
+    private ObjectIdentity obji;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
-     * <p>Original spec-file type: WorkspaceIdentity</p>
+     * <p>Original spec-file type: ObjectIdentity</p>
      * 
      * 
      */
-    @JsonProperty("wsi")
-    public WorkspaceIdentity getWsi() {
-        return wsi;
+    @JsonProperty("obji")
+    public ObjectIdentity getObji() {
+        return obji;
     }
 
     /**
-     * <p>Original spec-file type: WorkspaceIdentity</p>
+     * <p>Original spec-file type: ObjectIdentity</p>
      * 
      * 
      */
-    @JsonProperty("wsi")
-    public void setWsi(WorkspaceIdentity wsi) {
-        this.wsi = wsi;
+    @JsonProperty("obji")
+    public void setObji(ObjectIdentity obji) {
+        this.obji = obji;
     }
 
-    public DeleteNarrativeParams withWsi(WorkspaceIdentity wsi) {
-        this.wsi = wsi;
+    public DeleteNarrativeParams withObji(ObjectIdentity obji) {
+        this.obji = obji;
         return this;
     }
 
@@ -69,7 +69,7 @@ public class DeleteNarrativeParams {
 
     @Override
     public String toString() {
-        return ((((("DeleteNarrativeParams"+" [wsi=")+ wsi)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((("DeleteNarrativeParams"+" [obji=")+ obji)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

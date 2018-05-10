@@ -287,12 +287,14 @@ RunStats is a reference to a hash where the following keys are defined:
 <pre>
 $params is a DashboardService.DeleteNarrativeParams
 DeleteNarrativeParams is a reference to a hash where the following keys are defined:
-	wsi has a value which is a DashboardService.WorkspaceIdentity
-WorkspaceIdentity is a reference to a hash where the following keys are defined:
-	workspace has a value which is a DashboardService.ws_name
-	id has a value which is a DashboardService.ws_id
-ws_name is a string
+	obji has a value which is a DashboardService.ObjectIdentity
+ObjectIdentity is a reference to a hash where the following keys are defined:
+	workspace_id has a value which is a DashboardService.ws_id
+	object_id has a value which is a DashboardService.obj_id
+	version has a value which is a DashboardService.obj_ver
 ws_id is an int
+obj_id is an int
+obj_ver is an int
 
 </pre>
 
@@ -302,12 +304,14 @@ ws_id is an int
 
 $params is a DashboardService.DeleteNarrativeParams
 DeleteNarrativeParams is a reference to a hash where the following keys are defined:
-	wsi has a value which is a DashboardService.WorkspaceIdentity
-WorkspaceIdentity is a reference to a hash where the following keys are defined:
-	workspace has a value which is a DashboardService.ws_name
-	id has a value which is a DashboardService.ws_id
-ws_name is a string
+	obji has a value which is a DashboardService.ObjectIdentity
+ObjectIdentity is a reference to a hash where the following keys are defined:
+	workspace_id has a value which is a DashboardService.ws_id
+	object_id has a value which is a DashboardService.obj_id
+	version has a value which is a DashboardService.obj_ver
 ws_id is an int
+obj_id is an int
+obj_ver is an int
 
 
 =end text
@@ -987,8 +991,61 @@ a string
 =item Description
 
 from workspace_deluxe 
-Note too that naming conventions for paramters using these types 
+Note too that naming conventions for parameters using these types 
 (may) also use the workspace_deluxe conventions.
+workspace
+
+
+=item Definition
+
+=begin html
+
+<pre>
+an int
+</pre>
+
+=end html
+
+=begin text
+
+an int
+
+=end text
+
+=back
+
+
+
+=head2 obj_id
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+an int
+</pre>
+
+=end html
+
+=begin text
+
+an int
+
+=end text
+
+=back
+
+
+
+=head2 obj_ver
+
+=over 4
+
 
 
 =item Definition
@@ -1061,6 +1118,40 @@ id has a value which is a DashboardService.ws_id
 a reference to a hash where the following keys are defined:
 workspace has a value which is a DashboardService.ws_name
 id has a value which is a DashboardService.ws_id
+
+
+=end text
+
+=back
+
+
+
+=head2 ObjectIdentity
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+workspace_id has a value which is a DashboardService.ws_id
+object_id has a value which is a DashboardService.obj_id
+version has a value which is a DashboardService.obj_ver
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+workspace_id has a value which is a DashboardService.ws_id
+object_id has a value which is a DashboardService.obj_id
+version has a value which is a DashboardService.obj_ver
 
 
 =end text
@@ -1712,7 +1803,7 @@ timings has a value which is a reference to a list where each element is a refer
 
 <pre>
 a reference to a hash where the following keys are defined:
-wsi has a value which is a DashboardService.WorkspaceIdentity
+obji has a value which is a DashboardService.ObjectIdentity
 
 </pre>
 
@@ -1721,7 +1812,7 @@ wsi has a value which is a DashboardService.WorkspaceIdentity
 =begin text
 
 a reference to a hash where the following keys are defined:
-wsi has a value which is a DashboardService.WorkspaceIdentity
+obji has a value which is a DashboardService.ObjectIdentity
 
 
 =end text

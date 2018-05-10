@@ -94,11 +94,11 @@ class DashboardService(object):
     def delete_narrative(self, params, context=None):
         """
         :param params: instance of type "DeleteNarrativeParams" -> structure:
-           parameter "wsi" of type "WorkspaceIdentity" -> structure:
-           parameter "workspace" of type "ws_name", parameter "id" of type
-           "ws_id" (from workspace_deluxe Note too that naming conventions
-           for paramters using these types (may) also use the
-           workspace_deluxe conventions.)
+           parameter "obji" of type "ObjectIdentity" -> structure: parameter
+           "workspace_id" of type "ws_id" (from workspace_deluxe Note too
+           that naming conventions for parameters using these types (may)
+           also use the workspace_deluxe conventions. workspace), parameter
+           "object_id" of type "obj_id", parameter "version" of type "obj_ver"
         """
         return self._client.call_method(
             'DashboardService.delete_narrative',
@@ -110,12 +110,12 @@ class DashboardService(object):
            parameter "wsi" of type "WorkspaceIdentity" -> structure:
            parameter "workspace" of type "ws_name", parameter "id" of type
            "ws_id" (from workspace_deluxe Note too that naming conventions
-           for paramters using these types (may) also use the
-           workspace_deluxe conventions.), parameter "users" of list of type
-           "username", parameter "permission" of type "permission"
-           (Represents the permissions a user or users have to a workspace:
-           'a' - administrator. All operations allowed. 'w' - read/write. 'r'
-           - read. 'n' - no permissions.)
+           for parameters using these types (may) also use the
+           workspace_deluxe conventions. workspace), parameter "users" of
+           list of type "username", parameter "permission" of type
+           "permission" (Represents the permissions a user or users have to a
+           workspace: 'a' - administrator. All operations allowed. 'w' -
+           read/write. 'r' - read. 'n' - no permissions.)
         """
         return self._client.call_method(
             'DashboardService.share_narrative',
@@ -127,9 +127,9 @@ class DashboardService(object):
            structure: parameter "wsi" of type "WorkspaceIdentity" ->
            structure: parameter "workspace" of type "ws_name", parameter "id"
            of type "ws_id" (from workspace_deluxe Note too that naming
-           conventions for paramters using these types (may) also use the
-           workspace_deluxe conventions.), parameter "users" of list of type
-           "username"
+           conventions for parameters using these types (may) also use the
+           workspace_deluxe conventions. workspace), parameter "users" of
+           list of type "username"
         """
         return self._client.call_method(
             'DashboardService.unshare_narrative',
@@ -141,8 +141,8 @@ class DashboardService(object):
            structure: parameter "wsi" of type "WorkspaceIdentity" ->
            structure: parameter "workspace" of type "ws_name", parameter "id"
            of type "ws_id" (from workspace_deluxe Note too that naming
-           conventions for paramters using these types (may) also use the
-           workspace_deluxe conventions.)
+           conventions for parameters using these types (may) also use the
+           workspace_deluxe conventions. workspace)
         """
         return self._client.call_method(
             'DashboardService.share_narrative_global',
@@ -154,8 +154,8 @@ class DashboardService(object):
            structure: parameter "wsi" of type "WorkspaceIdentity" ->
            structure: parameter "workspace" of type "ws_name", parameter "id"
            of type "ws_id" (from workspace_deluxe Note too that naming
-           conventions for paramters using these types (may) also use the
-           workspace_deluxe conventions.)
+           conventions for parameters using these types (may) also use the
+           workspace_deluxe conventions. workspace)
         """
         return self._client.call_method(
             'DashboardService.unshare_narrative_global',

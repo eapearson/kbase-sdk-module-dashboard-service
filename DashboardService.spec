@@ -32,15 +32,24 @@ module DashboardService {
     typedef string lock_status;
 
     /* from workspace_deluxe 
-       Note too that naming conventions for paramters using these types 
+       Note too that naming conventions for parameters using these types 
        (may) also use the workspace_deluxe conventions.
+       workspace
     */
     typedef int ws_id;
+    typedef int obj_id;
+    typedef int obj_ver;
     typedef string ws_name;
     typedef structure {
         ws_name workspace;
         ws_id id;
     } WorkspaceIdentity;
+
+    typedef structure {
+        ws_id workspace_id;
+        obj_id object_id;
+        obj_ver version;
+    } ObjectIdentity;
 
     typedef string username;
 
@@ -202,7 +211,7 @@ module DashboardService {
         returns (ListAllNarrativesResult result, RunStats stats) authentication optional;
 
     typedef structure {
-        WorkspaceIdentity wsi;
+        ObjectIdentity obji;
     } DeleteNarrativeParams;        
 
     funcdef delete_narrative(DeleteNarrativeParams params) 

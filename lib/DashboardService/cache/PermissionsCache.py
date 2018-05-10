@@ -16,7 +16,7 @@ def get_path(from_dict, path):
     return current_dict
 
 
-class WorkspaceCache:
+class PermissionsCache:
     def __init__(self, path=None, url=None, username=None, token=None):
         if path is None:
             raise ValueError('The "path" argument is required')
@@ -53,13 +53,39 @@ class WorkspaceCache:
         # self.populate_cache()
         self.db.close()
 
+    def fetchone(self, key):
+        ws_client = GenericClient(
+            module='Workspace',
+            url=self.url,
+            token=self.token
+        )
+        (_username, wsid) = key
+        workspaces_for_perms = [{'id': wsid}]
+        result, error = ws_client.call_func('get_permissions_mass', [{
+            'workspaces': workspaces_for_perms
+        }])
+        if error:
+            raise ValueError(error)
+        permissions = result[0]['perms'][0]
+
+        # Adjust the permissions:
+        # - filter out the public "shared user"
+        return list(
+            filter(
+                lambda p: p['username'] != '*',
+                map(
+                    lambda (username, perm): {'username': username, 'perm': perm},
+                    permissions.iteritems()
+                )
+            ))
+
     def fetch(self, keys):
         ws_client = GenericClient(
             module='Workspace',
             url=self.url,
             token=self.token
         )
-        workspaces_for_perms = [{'id': wsid} for (_username, wsid, _ts) in keys]
+        workspaces_for_perms = [{'id': wsid} for (_username, wsid) in keys]
         result, error = ws_client.call_func('get_permissions_mass', [{
             'workspaces': workspaces_for_perms
         }])
@@ -100,19 +126,22 @@ class WorkspaceCache:
         return result
 
     def make_cache_key(self, key):
-        (username, id, timestamp) = key
-        return '.'.join([username, str(id), str(timestamp)])
+        (username, id) = key
+        return '.'.join([username, str(id)])
 
     def parse_cache_key(self, key):
-        (username, id, timestamp) = key.split('.')
-        return [username, int(id), int(timestamp)]
+        (username, id) = key.split('.')
+        return [username, int(id)]
 
     def setone(self, cache_key, value):
         # cache_key = self.make_cache_key(key)
         self.db.put(cache_key.encode('utf8'), json.dumps(value).encode('utf8'))
 
+    def deleteone(self, cache_key):
+        self.db.delete(cache_key)
+
     def get(self, workspaces):
-        cache_keys = [self.make_cache_key([self.username, ws['id'], ws['modDateMs']])
+        cache_keys = [self.make_cache_key([self.username, ws['id']])
                       for ws in workspaces]
         items_to_return = dict()
         for (cache_key, value) in self.get_items(cache_keys):
@@ -137,3 +166,18 @@ class WorkspaceCache:
         # TODO: don't refetch, but merge together the previously db-fetched and 
         # newly service-fetched.
         return [items_to_return.get(cache_key2, None) for cache_key2 in cache_keys]
+
+    def remove(self, wsi):
+        cache_key = self.make_cache_key([self.username, wsi.id()])
+        self.deleteone(cache_key)
+
+    def refresh(self, wsi):
+        key = [self.username, wsi.id()]
+        cache_key = self.make_cache_key(key)
+        # print("about to delete: %s, %s, %s, %s" % 
+        #       (self.username, wsi.id(), wsi.timestamp(), cache_key))
+        self.deleteone(cache_key)
+        fetched = self.fetchone(key)
+        if fetched is None:
+            return
+        self.setone(cache_key, fetched)
