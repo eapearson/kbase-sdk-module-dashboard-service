@@ -168,7 +168,18 @@ class NarrativeModel(object):
                             cell_types[key_parts[1]] = 0
                         cell_types[key_parts[1]] += int(obj_info['metadata'][key])
 
-            narrative_apps.append(apps)
+            # condense apps into just one instance per module.id
+            apps_map = dict()
+            for app in apps:
+                ref = app['id']['shortRef']
+                if ref not in apps_map:
+                    apps_map[ref] = app
+                else:
+                    apps_map[ref]['count'] += app['count']
+
+            final_apps = [v for _, v in apps_map.iteritems()]
+
+            narrative_apps.append(final_apps)
             narrative_cell_types.append(cell_types)
         return narrative_apps, narrative_cell_types, query_time
 
