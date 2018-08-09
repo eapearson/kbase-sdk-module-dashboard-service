@@ -14,7 +14,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * <p>Original spec-file type: ShareNarrativeParams</p>
- * 
+ * <pre>
+ * Share Narrative
+ * </pre>
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)

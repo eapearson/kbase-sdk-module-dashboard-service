@@ -1,153 +1,165 @@
 import os
 import itertools
 import json
-import bsddb3
+import apsw
+
 from DashboardService.GenericClient import GenericClient
 from DashboardService.ServiceUtils import ServiceUtils
 
-
 class ObjectCache(object):
-    def __init__(self, path=None, url=None, token=None):
+    def __init__(self, path=None, workspace_url=None, token=None):
         if path is None:
-            raise ValueError('the "path" argument is required')
+            raise ValueError('The "path" argument is required')
+        if not isinstance(path, basestring):
+            raise ValueError('The "path" argument must be a string')
         self.path = path
 
-        if url is None:
-            raise ValueError('the "url" argument is required')
-        self.url = url
+        if workspace_url is None:
+            raise ValueError('The "workspace_url" argument is required')
+        if not isinstance(workspace_url, basestring):
+            raise ValueError('The "workspace_url" argument must be a string')
+        self.workspace_url = workspace_url
 
         self.token = token
-
-        self.db = bsddb3.db.DB()
-
-    def start(self):
-        self.db.open(self.path, None, bsddb3.db.DB_HASH)
-
-    def stop(self):
-        self.db.close()
+        self.conn = apsw.Connection(self.path)
 
     def initialize(self):
-        if os.path.isfile(self.path):
-            # raise ValueError('The cache file indicated by "path" already exists: ' + self.path)
-            os.remove(self.path)
+        self.create_schema()
+ 
+    def create_schema(self):
+        schema = '''
+        drop table if exists cache;
+        create table cache (
+            workspace_id int not null,
+            object_id int not null,
+            timestamp int not null,
 
-        self.db.open(self.path, None, bsddb3.db.DB_HASH, bsddb3.db.DB_CREATE)
-        # self.populate_cache()
-        self.db.close()
+            value text,
+             
+            primary key (workspace_id, object_id, timestamp)
+        );
+        '''
+        with self.conn:
+            self.conn.cursor().execute(schema)
         
-    def setone(self, cache_key, value, timestamp):
-        # cache_key = self.make_cache_key(key)
-        record = {
-            'value': value,
-            'timestamp': timestamp
-        }
-        self.db.put(cache_key.encode('utf8'), json.dumps(record).encode('utf8'))
+    def add_items(self, items):
+        sql = '''
+        insert or replace into cache (workspace_id, object_id, timestamp, value)
+        values (?, ?, ?, ?)
+        '''
 
-    def deleteone(self, cache_key):
-        self.db.delete(cache_key)
+        with self.conn:
+            for wsid, objid, ts, value in items:
+                self.conn.cursor().execute(sql, (wsid, objid, ts, value))
 
-    def fetch(self, keys):
+    def fetch_items(self, keys):
         rpc = GenericClient(
             module='Workspace',
-            url=self.url,
+            url=self.workspace_url,
             token=self.token
         )
 
         objects_to_get = []
-        for key in keys:
-            (wsid, objid) = key['key']
+        for wsid, objid in keys:
             objects_to_get.append({
                 'wsid': int(wsid),
                 'objid': int(objid)
             })
-        result, error = rpc.call_func('get_object_info3', [{
+        [result] = rpc.call_func('get_object_info3', [{
             'objects': objects_to_get,
             'includeMetadata': 1,
             'ignoreErrors': 1
         }])
-        if error:
-            raise ValueError(error)
 
-        return [ServiceUtils.objectInfoToObject(value) for value in result[0]['infos']]
+        return [ServiceUtils.obj_info_to_object(value) for value in result['infos']]
+
+    def get_all_items(self):
+        sql = '''
+        select * from cache
+        '''
+        with self.conn:
+            return self.conn.curosr().execute(sql).fetchall()
 
     # simply gets the specified keys
     def get_items(self, keys):
-        result = []
-        for key in keys:
-            # cache_key = self.make_cache_key(key['cache_key'])
-            value = self.db.get(key['cache_key'].encode('utf8'))
+        temp_sql = '''
+        create temporary table keys (
+            wsid int,
+            objid int,
+            timestamp int,
+            primary key (wsid, objid)
+        );
+        '''
 
-            if value is not None:
-                result.append((key, json.loads(value.decode('utf8'))))
-            else:
-                result.append((key, None))
-        return result
+        temp_sql2 = '''
+        insert into keys (wsid, objid, timestamp) values (?, ?, ?)
+        '''
 
-    def make_key(self, key):
-        return '.'.join(list(
-            map(
-                lambda k: str(k),
-                key
-            )))
+        sql = '''
+        select cache.*, keys.*
+        from temp.keys
+        left outer join cache
+          on keys.wsid = cache.workspace_id and
+             keys.objid = cache.object_id            
+        '''
 
-    def make_cache_key(self, key):
-        return '.'.join([str(p) for p in key])
+        with self.conn:
+            self.conn.cursor().execute(temp_sql)
+            for key in keys:
+                # only use the wsid and objid
+                self.conn.cursor().execute(temp_sql2, tuple(key))
+            return self.conn.cursor().execute(sql).fetchall()
 
     # PUBLIC
 
     def get(self, key_specs):
-        keys = []
-        for (workspace_id, object_id, timestamp) in key_specs:
-            key = [workspace_id, object_id]
-            keys.append({
-                'key': key,
-                'cache_key': self.make_cache_key(key),
-                'timestamp': timestamp})
-
-        # cache_keys = [self.make_cache_key(key_spec['key']) for key_spec in key_specs]
-        #
-        # Fetch all narrative objects in the cache, building a list of missing
-        # or expired items.
-        # Expiratino is defined as the last modification timestamp of the given
-        # search key being greater than the cached one.
-        #
-        items_to_return = dict()
+        items_to_return = []
         items_to_fetch = []
-        for (key, record) in self.get_items(keys):
-            if record is None:
-                items_to_fetch.append(key)
-                # items_to_return[cache_key] = value
-            elif record['timestamp'] < key['timestamp']:
-                self.deleteone(key['cache_key'])
-                items_to_fetch.append(key)
+        for wsid, objid, timestamp, value, key_wsid, key_objid, key_timestamp in self.get_items(key_specs):
+            if wsid is None:
+                items_to_fetch.append([key_wsid, key_objid])
+            elif timestamp < (key_timestamp or 0):
+                items_to_fetch.append([key_wsid, key_objid]) 
             else:
-                items_to_return[key['cache_key']] = record['value']
+                items_to_return.append(json.loads(value))
 
         # Now fetch all of the missing objects and cache them
         if len(items_to_fetch) > 0:
-            fetched = self.fetch(items_to_fetch)
-            for key, value in itertools.izip(items_to_fetch, fetched):
-                self.setone(key['cache_key'], value, key['timestamp'])
-                items_to_return[key['cache_key']] = value
+            print('fetching... %s' % (len(items_to_fetch)))
+            fetched_items = self.fetch_items(items_to_fetch)
+            print('...fetched')
+            items_to_update = []
+            for object_info in fetched_items: 
+                items_to_return.append(object_info)
+                items_to_update.append([
+                    object_info['wsid'], 
+                    object_info['id'],
+                    object_info['saveDateMs'],
+                    json.dumps(object_info)
+                ])
+            self.add_items(items_to_update)
+
+            # TODO: handle errors, but should not happen since this is 
+            # driven by a set of workspaces + objects available to this
+            # user. Still, other than artificial conditions due to testing, 
+            # there are race conditions...
+            # items_to_return.extend(items_to_update)
 
         # Now prepare the result items as an array in the same order as the
         # requested key specs.
-        return [items_to_return[key['cache_key']] for key in keys]
+        # return [items_to_return[key['cache_key']] for key in keys]
+        # return as-is; the caller can sort if they wish.
+        return sorted(
+            items_to_return,
+            key=lambda x: x.get('wsid')
+        )
 
-        # if len(items_to_return) != len(keys):
-        #     missing_cache_keys = set(cache_keys).difference(items_to_return.keys())
-        #     missing_keys = []
-        #     for missing_key in missing_cache_keys:
-        #         key = missing_key.split('.')
-        #         missing_keys.append([int(p) for p in key])
-        #     fetched = self.fetch(missing_keys)
-        #     for key, value in itertools.izip(missing_keys, fetched):
-        #         self.setone(key, value)
-        #         cache_key = '.'.join([str(p) for p in key])
-        #         items_to_return[cache_key] = value
+    # TODO: a method to harvest stale cache entries.
+    # E.g. if an object is deleted or unshared, there is no way to reflect in the
+    # passive cache; it will simply become unused.
 
-        # return [items_to_return.get(cache_key2, None) for cache_key2 in cache_keys]
+    # TODO: switch to version and not timestamp??
 
-    def remove(self, obji):
-        cache_key = self.make_cache_key([obji.workspace_id(), obji.object_id()])
-        self.deleteone(cache_key)
+    # def remove(self, obji):
+    #     cache_key = self.make_cache_key([obji.workspace_id(), obji.object_id()])
+    #     self.deleteone(cache_key)

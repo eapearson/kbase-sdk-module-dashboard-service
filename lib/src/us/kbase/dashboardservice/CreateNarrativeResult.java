@@ -12,50 +12,48 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * <p>Original spec-file type: DeleteNarrativeParams</p>
- * <pre>
- * Delete Narrative
- * </pre>
+ * <p>Original spec-file type: CreateNarrativeResult</p>
+ * 
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "obji"
+    "narrative"
 })
-public class DeleteNarrativeParams {
+public class CreateNarrativeResult {
 
     /**
-     * <p>Original spec-file type: ObjectIdentity</p>
+     * <p>Original spec-file type: Narrative</p>
      * 
      * 
      */
-    @JsonProperty("obji")
-    private ObjectIdentity obji;
+    @JsonProperty("narrative")
+    private Narrative narrative;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
-     * <p>Original spec-file type: ObjectIdentity</p>
+     * <p>Original spec-file type: Narrative</p>
      * 
      * 
      */
-    @JsonProperty("obji")
-    public ObjectIdentity getObji() {
-        return obji;
+    @JsonProperty("narrative")
+    public Narrative getNarrative() {
+        return narrative;
     }
 
     /**
-     * <p>Original spec-file type: ObjectIdentity</p>
+     * <p>Original spec-file type: Narrative</p>
      * 
      * 
      */
-    @JsonProperty("obji")
-    public void setObji(ObjectIdentity obji) {
-        this.obji = obji;
+    @JsonProperty("narrative")
+    public void setNarrative(Narrative narrative) {
+        this.narrative = narrative;
     }
 
-    public DeleteNarrativeParams withObji(ObjectIdentity obji) {
-        this.obji = obji;
+    public CreateNarrativeResult withNarrative(Narrative narrative) {
+        this.narrative = narrative;
         return this;
     }
 
@@ -71,7 +69,7 @@ public class DeleteNarrativeParams {
 
     @Override
     public String toString() {
-        return ((((("DeleteNarrativeParams"+" [obji=")+ obji)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((("CreateNarrativeResult"+" [narrative=")+ narrative)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

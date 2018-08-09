@@ -6,7 +6,7 @@ import re
 class ServiceUtils:
 
     @staticmethod
-    def workspaceInfoToObject(ws_info):
+    def ws_info_to_object(ws_info):
         is_narratorial = True if ws_info[8].get('narratorial') == '1' else False
         is_public = True if ws_info[6] == 'r' else False
         mod_date_ms = ServiceUtils.iso8601ToMillisSinceEpoch(ws_info[3])
@@ -25,7 +25,7 @@ class ServiceUtils:
                 'isNarratorial': is_narratorial}
 
     @staticmethod
-    def objectInfoToObject(data):
+    def obj_info_to_object(data):
         dtype = re.split(r"-|\.", data[2])
         return {'id': data[0],
                 'name': data[1],

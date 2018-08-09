@@ -1,6 +1,8 @@
 import time
 import itertools
+import uuid
 from DashboardService.GenericClient import GenericClient
+from DashboardService.DynamicServiceClient import DynamicServiceClient
 from DashboardService.ServiceUtils import ServiceUtils
 from DashboardService.cache.UserProfileCache import UserProfileCache
 from DashboardService.cache.AppCache import AppCache
@@ -60,17 +62,16 @@ class ObjectIdentity(object):
         return self._version
 
 
-class NarrativeModel(object):
-    def __init__(self, config=None, token=None):
+class Model(object):
+    def __init__(self, config=None, token=None, username=None):
         self.config = config
         self.token = token
+        self.username = username
         self.narrative_workspaces = None
         self.app_cache = AppCache(
-            url=self.config['services']['NarrativeMethodStore'],
+            narrative_method_store_url=self.config['services']['NarrativeMethodStore'],
             path=self.config['caches']['app']['path']
         )
-        self.app_cache.start()
-        # self.user_profiles = UserProfileCache(url=self.config['services']['UserProfile'])
 
     def fetch_narrative_workspaces(self):
         rpc = GenericClient(
@@ -78,12 +79,9 @@ class NarrativeModel(object):
             url=self.config['services']['Workspace'],
             token=self.token
         )
-        result, error = rpc.call_func('list_workspace_info', [
+        [ws_list] = rpc.call_func('list_workspace_info', [
              {'meta': {'is_temporary': 'false'}}
         ])
-        if error:
-            raise ValueError(error)
-        ws_list = result[0]
 
         # This will filter out invalid narratives - we've already filter for
         # "probably valid narrative workspace" above.
@@ -91,7 +89,7 @@ class NarrativeModel(object):
         # dictionary.
         self.narrative_workspaces = list(
             map(
-                lambda nar_ws: ServiceUtils.workspaceInfoToObject(nar_ws),
+                lambda nar_ws: ServiceUtils.ws_info_to_object(nar_ws),
                 filter(
                     lambda ws_info: self.is_valid_narrative_workspace(ws_info),
                     ws_list)))
@@ -119,10 +117,13 @@ class NarrativeModel(object):
             }
             apps = []
             if obj_info is not None:
+                # print('obj info...', obj_info)
                 for key in obj_info['metadata'].keys():
                     key_parts = key.split('.')
                     if key_parts[0] == 'method' or key_parts[0] == 'app':
                         parsed_id = ServiceUtils.parse_app_key(key_parts[1])
+                        if parsed_id is None:
+                            continue
 
                         app = {
                             # 'key': key_parts[1],
@@ -133,6 +134,8 @@ class NarrativeModel(object):
 
                     if key_parts[0] == 'method':
                         parsed_id = ServiceUtils.parse_app_key(key_parts[1])
+                        if parsed_id is None:
+                            continue
 
                         app_ref = parsed_id['shortRef']
                         start = time.time()
@@ -146,6 +149,7 @@ class NarrativeModel(object):
                             'tag': tag
                         }
 
+                        # print('app info??', app_ref, app_info)
                         if app_info is None:
                             app['notFound'] = True
                         else:
@@ -189,47 +193,58 @@ class NarrativeModel(object):
         then = time.time()
 
         # WORKSPACES
-        narrative_workspaces = self.fetch_narrative_workspaces()
+        print('getting workspaces...')
+        narrative_workspaces = sorted(
+            self.fetch_narrative_workspaces(),
+            key=lambda x: x.get('id')
+        )
         now = time.time()
         stats.append(['list_workspace', now - then])
         then = now
 
+        # NB - all workpace/narrative related data below must be 
+        # eventually formed into a list with the same order as the
+        # narrative workspaces.
+
         # PERMISSION
-       
+        print('getting permissions...')
+        # TODO: we need to ensure that at the very least the items which are 
+        # returned are returned in the same order requested. This will allow us
+        # to weave the results back together in the end.
         workspace_cache = PermissionsCache(
-            url=self.config['services']['Workspace'],
+            workspace_url=self.config['services']['Workspace'],
             path=self.config['caches']['workspace']['path'],
-            username=self.token,   # just use the token for now...
+            username=self.username,   # just use the token for now...
             token=self.token
         )
-        workspace_cache.start()
-        # workspace_ids = [ws['id'] for ws in narrative_workspaces]
-        narrative_workspaces_perms = workspace_cache.get(narrative_workspaces)
+        workspaces_to_get = [ws['id'] for ws in narrative_workspaces]
+        narrative_workspaces_perms = workspace_cache.get(workspaces_to_get)
         now = time.time()
         stats.append(['get_permissions', now - then])
         then = now
 
         # PROFILE PER USER
+        print('getting profiles...')
         # Get all profiles for all users in the permissions list. It is returned with the
         # response so that the caller can map usernames to profiles.
         users = set()
         for perms in narrative_workspaces_perms:
-            for perm in perms:
-                users.add(perm['username'])
+            for username, _perm in perms:
+                users.add(username)
+
+        # print('USERS?', list(users))
 
         # We end up with a map of username -> profile
         # Transform profiles into map of user to record.
         # The profile record itself is simplified down to just what
         # we need
         profiles_cache = UserProfileCache(
-            url=self.config['services']['UserProfile'],
+            user_profile_url=self.config['services']['UserProfile'],
             path=self.config['caches']['userprofile']['path'])
-        profiles_cache.start()
         profiles = profiles_cache.get(list(users))
-        profiles_cache.stop()
-        profiles_map = dict()
-        for (username, profile) in itertools.izip(users, profiles):
-            profiles_map[username] = profile
+        # profiles_map = dict()
+        # for (username, profile) in itertools.izip(users, profiles):
+        #     profiles_map[username] = profile
 
         now = time.time()
         stats.append(['user_profiles', now - then])
@@ -240,11 +255,11 @@ class NarrativeModel(object):
         # narrative_objects, _missing, _missed = self.objectInfo.get_object_info_for_workspaces(
         #     narrative_workspaces, clients['Workspace'])
         object_cache = ObjectCache(
-            url=self.config['services']['Workspace'],
+            workspace_url=self.config['services']['Workspace'],
             path=self.config['caches']['object']['path'],
             token=self.token
         )
-        object_cache.start()
+        # object_cache.start()
 
         # object_cache = object_cache.newInstance(token=ctx['token'])
         # convert to the cache format, which includes the mod date as timestamp
@@ -257,7 +272,14 @@ class NarrativeModel(object):
         # to_get = [(ws['id'],
         #           int(ws['metadata']['narrative']))
         #           for ws in narrative_workspaces]
+
+        # TODO: split up into batches of 1000
+        # if len(to_get) >= 1000:
+        #     to_get = to_get[1:1000]
+
+        print('getting objects...')
         narrative_objects = object_cache.get(to_get)
+        print('done')
 
         now = time.time()
         stats.append(['narrative_objects', now - then])
@@ -268,7 +290,9 @@ class NarrativeModel(object):
         # Get the apps
         # Profile a map of apps for a given tag
 
+        print('parsing apps...')
         (narrative_apps, narrative_cell_types, elapsed) = self.parse_apps(narrative_objects)
+        print('...done')
 
         stats.append(['app_gets', elapsed])
 
@@ -278,6 +302,7 @@ class NarrativeModel(object):
 
         # TODO: permissions, user profiles for permissions, apps
 
+        print('assembling...')
         # Now weave together the sources into a single narratiive
         narratives = []
         for (ws,
@@ -313,17 +338,50 @@ class NarrativeModel(object):
         then = now
         result = {
             'narratives': narratives,
-            'profiles': profiles_map,
-            # 'debug': {
-            #     'workspaces': narrative_workspaces,
-            #     'objects': narrative_objects,
-            #     'toget': to_get,
-            #     'perms': narrative_workspaces_perms,
-            #     'celltypes': narrative_cell_types,
-            #     'apps': narrative_apps
-            # }
+            'profiles': profiles
         }
         return result, stats
+
+    def create_narrative(self, name=None, title=None):
+        url=self.config['services']['ServiceWizard']
+        narrative_service = DynamicServiceClient(url=url,
+                                                 module='NarrativeService',
+                                                 token=self.token) 
+        try:
+            [result], error = narrative_service.call_func('create_new_narrative', [{
+                'title': title
+            }])
+            ws = result['workspaceInfo']
+            obj = result['narrativeInfo']
+            if error:
+                return None, error
+            is_narratorial = True if ws['metadata'].get('narratorial') == '1' else False
+            is_public = ws['globalread'] == 'r'
+            mod_date_ms = ServiceUtils.iso8601ToMillisSinceEpoch(ws['moddate'])
+            narrative = {
+                    'workspaceId': ws['id'],
+                    'objectId': obj['id'],
+                    'objectVersion': obj['version'],
+                    'owner': ws['owner'],
+                    'permission': ws['user_permission'],
+                    'isPublic': is_public,
+                    'isNarratorial': is_narratorial,
+                    'title': ws['metadata']['narrative_nice_name'],
+                    'modifiedTime': ws['modDateMs'],
+                    'savedTime': obj['saveDateMs'],
+                    'savedBy': obj['saved_by'],
+                    'permissions': None,
+                    'cellTypes': None,
+                    'apps': None
+                }
+            return narrative, None
+        except Exception as err:
+            return None, err.message
+
+        # Now if the title was provided, set that and save it.
+        # Otherwise just set the basic metadata.
+
+
 
     def delete_narrative(self, obji=None):
         if (obji is None):
@@ -335,27 +393,24 @@ class NarrativeModel(object):
             token=self.token
         )
 
-        # print("deleting workspace... %s" % (wsi.make_wsi()))
         wsi = WorkspaceIdentity(id=obji.workspace_id())
         rpc.call_func('delete_workspace', [wsi.make_wsi()])
-
+ 
         permissions_cache = PermissionsCache(
-            url=self.config['services']['Workspace'],
+            workspace_url=self.config['services']['Workspace'],
             path=self.config['caches']['workspace']['path'],
-            username=self.token,  # just use the token for now...
+            username=self.username,  # just use the token for now...
             token=self.token
         )
-        permissions_cache.start()
-        permissions_cache.remove(wsi)
+        # permissions_cache.remove(wsi)
 
         # TODO:
         object_cache = ObjectCache(
-            url=self.config['services']['Workspace'],
+            workspace_url=self.config['services']['Workspace'],
             path=self.config['caches']['object']['path'],
             token=self.token
         )
-        object_cache.start()
-        object_cache.remove(obji)
+        # object_cache.remove(obji)
 
         pass
 
@@ -383,13 +438,13 @@ class NarrativeModel(object):
         # Then ensure that the cache for this workspace is
         # refreshed.
         workspace_cache = PermissionsCache(
-            url=self.config['services']['Workspace'],
+            workspace_url=self.config['services']['Workspace'],
             path=self.config['caches']['workspace']['path'],
-            username=self.token,  # just use the token for now...
+            username=self.username,  # just use the token for now...
             token=self.token
         )
-        workspace_cache.start()
-        workspace_cache.refresh(wsi)
+        # workspace_cache.start() 
+        workspace_cache.refresh_items([wsi.id()])
         pass
 
     def unshare_narrative(self, wsi=None, users=None):
@@ -413,13 +468,12 @@ class NarrativeModel(object):
         # Then ensure that the cache for this workspace is
         # refreshed.
         workspace_cache = PermissionsCache(
-            url=self.config['services']['Workspace'],
+            workspace_url=self.config['services']['Workspace'],
             path=self.config['caches']['workspace']['path'],
-            username=self.token,  # just use the token for now...
+            username=self.username,  # just use the token for now...
             token=self.token
         )
-        workspace_cache.start()
-        workspace_cache.refresh(wsi)
+        workspace_cache.refresh_items([wsi.id()])
 
         pass
 

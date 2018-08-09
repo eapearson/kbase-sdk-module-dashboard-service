@@ -4,6 +4,13 @@ A KBase module: DashboardService
 
 module DashboardService {
 
+    typedef structure {
+        string message;
+        string type;
+        string code;
+        UnspecifiedObject info;
+    } Error;
+
     /* @range [0,1] */
     typedef int boolean;
 
@@ -171,18 +178,12 @@ module DashboardService {
     /* ********************************** */
     /* Listing Narratives / Naratorials (plus Narratorial Management) */
 
-    typedef structure {
-        workspace_info ws;
-        object_info nar;
-    } Narrative;
 
-    typedef structure {
-        list <Narrative> narratives;
-    } NarrativeList;
+    /* TODO: specify! */
 
-    /* LIST ALL NARRATIVES */
-
-    typedef UnspecifiedObject UserProfile;
+    /* typedef UnspecifiedObject NarrativePermission; */
+    typedef UnspecifiedObject NarrativeCellStat;
+    typedef UnspecifiedObject NarrativeApp;
 
     typedef structure {
         string username;
@@ -190,17 +191,48 @@ module DashboardService {
     } UserPermission;
 
     typedef structure {
-        workspace_info ws;
-        object_info nar;
+        obj_id objectId;
+        obj_ver objectVersion;
+        string owner;
+        string permission;
+        boolean isPublic;
+        boolean isNarratorial;
+        string title;
+        int savedTime;
+        string savedBy;
         list<UserPermission> permissions;
-    } NarrativeX;
+        list<NarrativeCellStat> cellTypes;
+        list<NarrativeApp> apps;
+    } Narrative;    
+
+    /*typedef structure {
+        workspace_info workspace;
+        object_info object;
+    } Narrative;
 
     typedef structure {
-        list<NarrativeX> narratives;
+        list <Narrative> narratives;
+    } NarrativeList;*/
+
+    /* LIST ALL NARRATIVES */
+
+    typedef UnspecifiedObject UserProfile;
+
+ 
+
+    /*typedef structure {
+        workspace_info workspace;
+        object_info object;
+        list<UserPermission> permissions;
+    } NarrativeX;*/
+
+    typedef structure {
+        list<Narrative> narratives;
         list<UserProfile> profiles;
     } ListAllNarrativesResult;
 
     typedef structure {
+        timestamp just_modified_after;
     } ListAllNarrativesParams;
 
     typedef structure {
@@ -208,14 +240,38 @@ module DashboardService {
     } RunStats;
 
     funcdef list_all_narratives(ListAllNarrativesParams params)
-        returns (ListAllNarrativesResult result, RunStats stats) authentication optional;
+        returns (ListAllNarrativesResult result, Error error, RunStats stats) authentication optional;
+
+    /* 
+        Create Narrative 
+    */
+
+    typedef structure {
+        string title;       /* optional - if omitted, will be a temporary narrative */
+        ws_name name; /* optional */
+    } CreateNarrativeParam;
+
+    typedef structure {
+        Narrative narrative;
+    } CreateNarrativeResult;
+
+    funcdef create_narrative(CreateNarrativeParam param)
+        returns (CreateNarrativeResult result, Error error) authentication required;
+
+    /* 
+        Delete Narrative 
+    */
 
     typedef structure {
         ObjectIdentity obji;
     } DeleteNarrativeParams;        
 
     funcdef delete_narrative(DeleteNarrativeParams params) 
-        returns () authentication required;
+        returns (Error error) authentication required;
+
+    /*
+        Share Narrative 
+    */
 
     typedef structure {
         WorkspaceIdentity wsi;
@@ -224,7 +280,7 @@ module DashboardService {
     } ShareNarrativeParams;
 
     funcdef share_narrative(ShareNarrativeParams params)
-        returns () authentication required;
+        returns (Error error) authentication required;
 
     typedef structure {
         WorkspaceIdentity wsi;
@@ -232,20 +288,20 @@ module DashboardService {
     } UnshareNarrativeParams;
 
     funcdef unshare_narrative(UnshareNarrativeParams params)
-        returns () authentication required;
+        returns (Error error) authentication required;
 
     typedef structure {
         WorkspaceIdentity wsi;
     } ShareNarrativeGlobalParams;
 
     funcdef share_narrative_global(ShareNarrativeGlobalParams params) 
-        returns () authentication required;
+        returns (Error error) authentication required;
 
     typedef structure {
         WorkspaceIdentity wsi;
     } UnshareNarrativeGlobalParams;
 
     funcdef unshare_narrative_global(UnshareNarrativeGlobalParams params)
-        returns () authentication required;        
+        returns (Error error) authentication required;
 
 };

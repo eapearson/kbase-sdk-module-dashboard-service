@@ -36,69 +36,84 @@ class DashboardService(object):
     def list_all_narratives(self, params, context=None):
         """
         :param params: instance of type "ListAllNarrativesParams" ->
-           structure:
+           structure: parameter "just_modified_after" of type "timestamp" (A
+           time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
+           character Z (representing the UTC timezone) or the difference in
+           time to UTC in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500
+           (EST time) 2013-04-03T08:56:32+0000 (UTC time)
+           2013-04-03T08:56:32Z (UTC time))
         :returns: multiple set - (1) parameter "result" of type
-           "ListAllNarrativesResult" -> structure: parameter "narratives" of
-           list of type "NarrativeX" -> structure: parameter "ws" of type
-           "workspace_info" (Information about a workspace. ws_id id - the
-           numerical ID of the workspace. ws_name workspace - name of the
-           workspace. username owner - name of the user who owns (e.g.
-           created) this workspace. timestamp moddate - date when the
-           workspace was last modified. int max_objid - the maximum object ID
-           appearing in this workspace. Since cloning a workspace preserves
-           object IDs, this number may be greater than the number of objects
-           in a newly cloned workspace. permission user_permission -
-           permissions for the authenticated user of this workspace.
-           permission globalread - whether this workspace is globally
-           readable. lock_status lockstat - the status of the workspace lock.
-           usermeta metadata - arbitrary user-supplied metadata about the
-           workspace.) -> tuple of size 9: parameter "id" of Long, parameter
-           "workspace" of String, parameter "owner" of String, parameter
-           "moddate" of String, parameter "max_objid" of Long, parameter
-           "user_permission" of String, parameter "globalread" of String,
-           parameter "lockstat" of String, parameter "metadata" of mapping
-           from String to String, parameter "nar" of type "object_info"
-           (Information about an object, including user provided metadata.
-           obj_id objid - the numerical id of the object. obj_name name - the
-           name of the object. type_string type - the type of the object.
-           timestamp save_date - the save date of the object. obj_ver ver -
-           the version of the object. username saved_by - the user that saved
-           or copied the object. ws_id wsid - the workspace containing the
-           object. ws_name workspace - the workspace containing the object.
-           string chsum - the md5 checksum of the object. int size - the size
-           of the object in bytes. usermeta meta - arbitrary user-supplied
-           metadata about the object.) -> tuple of size 11: parameter "objid"
-           of Long, parameter "name" of String, parameter "type" of String,
-           parameter "save_date" of type "timestamp" (A time in the format
-           YYYY-MM-DDThh:mm:ssZ, where Z is either the character Z
-           (representing the UTC timezone) or the difference in time to UTC
-           in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500 (EST time)
-           2013-04-03T08:56:32+0000 (UTC time) 2013-04-03T08:56:32Z (UTC
-           time)), parameter "version" of Long, parameter "saved_by" of
-           String, parameter "wsid" of Long, parameter "workspace" of String,
-           parameter "chsum" of String, parameter "size" of Long, parameter
-           "meta" of mapping from String to String, parameter "permissions"
-           of list of type "UserPermission" -> structure: parameter
-           "username" of String, parameter "permission" of type "permission"
-           (Represents the permissions a user or users have to a workspace:
-           'a' - administrator. All operations allowed. 'w' - read/write. 'r'
-           - read. 'n' - no permissions.), parameter "profiles" of list of
-           type "UserProfile" (LIST ALL NARRATIVES) -> unspecified object,
-           (2) parameter "stats" of type "RunStats" -> structure: parameter
-           "timings" of list of tuple of size 2: String, Long
+           "ListAllNarrativesResult" (typedef structure { workspace_info
+           workspace; object_info object; list<UserPermission> permissions; }
+           NarrativeX;) -> structure: parameter "narratives" of list of type
+           "Narrative" -> structure: parameter "objectId" of type "obj_id",
+           parameter "objectVersion" of type "obj_ver", parameter "owner" of
+           String, parameter "permission" of String, parameter "isPublic" of
+           type "boolean" (@range [0,1]), parameter "isNarratorial" of type
+           "boolean" (@range [0,1]), parameter "title" of String, parameter
+           "savedTime" of Long, parameter "savedBy" of String, parameter
+           "permissions" of list of type "UserPermission" -> structure:
+           parameter "username" of String, parameter "permission" of type
+           "permission" (Represents the permissions a user or users have to a
+           workspace: 'a' - administrator. All operations allowed. 'w' -
+           read/write. 'r' - read. 'n' - no permissions.), parameter
+           "cellTypes" of list of type "NarrativeCellStat" (typedef
+           UnspecifiedObject NarrativePermission;) -> unspecified object,
+           parameter "apps" of list of type "NarrativeApp" -> unspecified
+           object, parameter "profiles" of list of type "UserProfile" (LIST
+           ALL NARRATIVES) -> unspecified object, (2) parameter "error" of
+           type "Error" -> structure: parameter "message" of String,
+           parameter "type" of String, parameter "code" of String, parameter
+           "info" of unspecified object, (3) parameter "stats" of type
+           "RunStats" -> structure: parameter "timings" of list of tuple of
+           size 2: String, Long
         """
         return self._client.call_method(
             'DashboardService.list_all_narratives',
             [params], self._service_ver, context)
 
+    def create_narrative(self, param, context=None):
+        """
+        :param param: instance of type "CreateNarrativeParam" (Create
+           Narrative) -> structure: parameter "title" of String, parameter
+           "name" of type "ws_name"
+        :returns: multiple set - (1) parameter "result" of type
+           "CreateNarrativeResult" -> structure: parameter "narrative" of
+           type "Narrative" -> structure: parameter "objectId" of type
+           "obj_id", parameter "objectVersion" of type "obj_ver", parameter
+           "owner" of String, parameter "permission" of String, parameter
+           "isPublic" of type "boolean" (@range [0,1]), parameter
+           "isNarratorial" of type "boolean" (@range [0,1]), parameter
+           "title" of String, parameter "savedTime" of Long, parameter
+           "savedBy" of String, parameter "permissions" of list of type
+           "UserPermission" -> structure: parameter "username" of String,
+           parameter "permission" of type "permission" (Represents the
+           permissions a user or users have to a workspace: 'a' -
+           administrator. All operations allowed. 'w' - read/write. 'r' -
+           read. 'n' - no permissions.), parameter "cellTypes" of list of
+           type "NarrativeCellStat" (typedef UnspecifiedObject
+           NarrativePermission;) -> unspecified object, parameter "apps" of
+           list of type "NarrativeApp" -> unspecified object, (2) parameter
+           "error" of type "Error" -> structure: parameter "message" of
+           String, parameter "type" of String, parameter "code" of String,
+           parameter "info" of unspecified object
+        """
+        return self._client.call_method(
+            'DashboardService.create_narrative',
+            [param], self._service_ver, context)
+
     def delete_narrative(self, params, context=None):
         """
-        :param params: instance of type "DeleteNarrativeParams" -> structure:
-           parameter "obji" of type "ObjectIdentity" -> structure: parameter
-           "workspace_id" of type "ws_id" (from workspace_deluxe Note too
-           that naming conventions for parameters using these types (may)
-           also use the workspace_deluxe conventions. workspace), parameter
-           "object_id" of type "obj_id", parameter "version" of type "obj_ver"
+        :param params: instance of type "DeleteNarrativeParams" (Delete
+           Narrative) -> structure: parameter "obji" of type "ObjectIdentity"
+           -> structure: parameter "workspace_id" of type "ws_id" (from
+           workspace_deluxe Note too that naming conventions for parameters
+           using these types (may) also use the workspace_deluxe conventions.
+           workspace), parameter "object_id" of type "obj_id", parameter
+           "version" of type "obj_ver"
+        :returns: instance of type "Error" -> structure: parameter "message"
+           of String, parameter "type" of String, parameter "code" of String,
+           parameter "info" of unspecified object
         """
         return self._client.call_method(
             'DashboardService.delete_narrative',
@@ -106,16 +121,20 @@ class DashboardService(object):
 
     def share_narrative(self, params, context=None):
         """
-        :param params: instance of type "ShareNarrativeParams" -> structure:
-           parameter "wsi" of type "WorkspaceIdentity" -> structure:
-           parameter "workspace" of type "ws_name", parameter "id" of type
-           "ws_id" (from workspace_deluxe Note too that naming conventions
-           for parameters using these types (may) also use the
-           workspace_deluxe conventions. workspace), parameter "users" of
-           list of type "username", parameter "permission" of type
-           "permission" (Represents the permissions a user or users have to a
-           workspace: 'a' - administrator. All operations allowed. 'w' -
-           read/write. 'r' - read. 'n' - no permissions.)
+        :param params: instance of type "ShareNarrativeParams" (Share
+           Narrative) -> structure: parameter "wsi" of type
+           "WorkspaceIdentity" -> structure: parameter "workspace" of type
+           "ws_name", parameter "id" of type "ws_id" (from workspace_deluxe
+           Note too that naming conventions for parameters using these types
+           (may) also use the workspace_deluxe conventions. workspace),
+           parameter "users" of list of type "username", parameter
+           "permission" of type "permission" (Represents the permissions a
+           user or users have to a workspace: 'a' - administrator. All
+           operations allowed. 'w' - read/write. 'r' - read. 'n' - no
+           permissions.)
+        :returns: instance of type "Error" -> structure: parameter "message"
+           of String, parameter "type" of String, parameter "code" of String,
+           parameter "info" of unspecified object
         """
         return self._client.call_method(
             'DashboardService.share_narrative',
@@ -130,6 +149,9 @@ class DashboardService(object):
            conventions for parameters using these types (may) also use the
            workspace_deluxe conventions. workspace), parameter "users" of
            list of type "username"
+        :returns: instance of type "Error" -> structure: parameter "message"
+           of String, parameter "type" of String, parameter "code" of String,
+           parameter "info" of unspecified object
         """
         return self._client.call_method(
             'DashboardService.unshare_narrative',
@@ -143,6 +165,9 @@ class DashboardService(object):
            of type "ws_id" (from workspace_deluxe Note too that naming
            conventions for parameters using these types (may) also use the
            workspace_deluxe conventions. workspace)
+        :returns: instance of type "Error" -> structure: parameter "message"
+           of String, parameter "type" of String, parameter "code" of String,
+           parameter "info" of unspecified object
         """
         return self._client.call_method(
             'DashboardService.share_narrative_global',
@@ -156,6 +181,9 @@ class DashboardService(object):
            of type "ws_id" (from workspace_deluxe Note too that naming
            conventions for parameters using these types (may) also use the
            workspace_deluxe conventions. workspace)
+        :returns: instance of type "Error" -> structure: parameter "message"
+           of String, parameter "type" of String, parameter "code" of String,
+           parameter "info" of unspecified object
         """
         return self._client.call_method(
             'DashboardService.unshare_narrative_global',

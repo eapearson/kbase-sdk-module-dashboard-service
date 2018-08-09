@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 #BEGIN_HEADER
 from time import time
-from DashboardService.NarrativeManager import NarrativeManager
-from DashboardService.DynamicServiceCache import DynamicServiceCache
+import apsw
+
+from DashboardService.DynamicServiceClient import DynamicServiceClient
 from DashboardService.cache.AppCache import AppCache
 from DashboardService.cache.UserProfileCache import UserProfileCache
 from DashboardService.cache.ObjectCache import ObjectCache
 from DashboardService.cache.PermissionsCache import PermissionsCache
-from DashboardService.NarrativeModel import NarrativeModel, WorkspaceIdentity, ObjectIdentity
+from DashboardService.Model import Model, WorkspaceIdentity, ObjectIdentity
+from DashboardService.Validation import Validation
 #END_HEADER
 
 
@@ -27,12 +29,10 @@ class DashboardService:
     # the latter method is running.
     ######################################### noqa
     VERSION = "0.0.8"
-    GIT_URL = "git@github.com:eapearson/kbase-sdk-module-dashboard-service.git"
-    GIT_COMMIT_HASH = "4c9b320b5c701ce0fd75ba63eef9a32d365d5fd9"
+    GIT_URL = "ssh://git@github.com/eapearson/kbase-sdk-module-dashboard-service"
+    GIT_COMMIT_HASH = "d72ef6916c580e1b0e971ce84aa90108225b9d86"
 
     #BEGIN_CLASS_HEADER
-    def _nm(self, ctx):
-        return NarrativeManager(self.config, ctx, self.setAPICache, self.dataPaletteCache)
     #END_CLASS_HEADER
 
     # config contains contents of config file in a hash or None if it couldn't
@@ -41,64 +41,45 @@ class DashboardService:
         #BEGIN_CONSTRUCTOR
         self.config = config
 
-        self.cache_directory = config['cache-directory']
-        self.workspaceURL = config['workspace-url']
-        self.serviceWizardURL = config['service-wizard']
-        self.setAPICache = DynamicServiceCache(self.serviceWizardURL,
-                                               config['setapi-version'],
-                                               'SetAPI')
-        self.dataPaletteCache = DynamicServiceCache(self.serviceWizardURL,
-                                                    config['datapaletteservice-version'],
-                                                    'DataPaletteService')
+        config, err = Validation.validate_config(config)
+        if err:
+            raise ValueError(err)
+
+        self.call_config = config
+
+        def setwal(db):
+            db.cursor().execute("pragma journal_mode=wal")
+            # custom auto checkpoint interval (use zero to disable)
+            db.wal_autocheckpoint(0)
+
+        apsw.connection_hooks.append(setwal)
+
+
+        # TODO: move into MOdel?
 
         user_profile_cache = UserProfileCache(
-            path=self.cache_directory + '/user_profile_cache.db',
-            url=config['user-profile-service-url'])
+            path=config['caches']['userprofile']['path'],
+            user_profile_url=config['services']['UserProfile'])
         user_profile_cache.initialize()
 
         # The app cache can be populated upon load.
         app_cache = AppCache(
-            path=self.cache_directory + '/app_cache.db',
-            url=config['narrative-method-store-url']
+            path=config['caches']['app']['path'],
+            narrative_method_store_url=config['services']['NarrativeMethodStore']
         )
         app_cache.initialize()
 
         object_cache = ObjectCache(
-            path=self.cache_directory + '/object_cache.db',
-            url=config['workspace-url']
+            path=config['caches']['object']['path'],
+            workspace_url=config['services']['Workspace']
         )
         object_cache.initialize()
 
         workspace_cache = PermissionsCache(
-            path=self.cache_directory + '/workspace_cache.db',
-            url=config['workspace-url']
+            path=config['caches']['workspace']['path'],
+            workspace_url=config['services']['Workspace']
         )
         workspace_cache.initialize()
-
-        self.call_config = {
-            'services': {
-                'Workspace': self.config['workspace-url'],
-                'NarrativeMethodStore': self.config['narrative-method-store-url'],
-                'UserProfile': self.config['user-profile-service-url']
-            },
-            'caches': {
-                'object': {
-                    'path': self.cache_directory + '/object_cache.db'
-                },
-                'userprofile': {
-                    'path': self.cache_directory + '/user_profile_cache.db'
-                },
-                'app': {
-                    'path': self.cache_directory + '/app_cache.db'
-                },
-                'workspace': {
-                    'path': self.cache_directory + '/workspace_cache.db'
-                },
-                'narrative': {
-                    'path': self.cache_directory + '/narrative_cache.db'
-                }
-            }
-        }
 
         #END_CONSTRUCTOR
         pass
@@ -107,68 +88,54 @@ class DashboardService:
     def list_all_narratives(self, ctx, params):
         """
         :param params: instance of type "ListAllNarrativesParams" ->
-           structure:
+           structure: parameter "just_modified_after" of type "timestamp" (A
+           time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
+           character Z (representing the UTC timezone) or the difference in
+           time to UTC in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500
+           (EST time) 2013-04-03T08:56:32+0000 (UTC time)
+           2013-04-03T08:56:32Z (UTC time))
         :returns: multiple set - (1) parameter "result" of type
-           "ListAllNarrativesResult" -> structure: parameter "narratives" of
-           list of type "NarrativeX" -> structure: parameter "ws" of type
-           "workspace_info" (Information about a workspace. ws_id id - the
-           numerical ID of the workspace. ws_name workspace - name of the
-           workspace. username owner - name of the user who owns (e.g.
-           created) this workspace. timestamp moddate - date when the
-           workspace was last modified. int max_objid - the maximum object ID
-           appearing in this workspace. Since cloning a workspace preserves
-           object IDs, this number may be greater than the number of objects
-           in a newly cloned workspace. permission user_permission -
-           permissions for the authenticated user of this workspace.
-           permission globalread - whether this workspace is globally
-           readable. lock_status lockstat - the status of the workspace lock.
-           usermeta metadata - arbitrary user-supplied metadata about the
-           workspace.) -> tuple of size 9: parameter "id" of Long, parameter
-           "workspace" of String, parameter "owner" of String, parameter
-           "moddate" of String, parameter "max_objid" of Long, parameter
-           "user_permission" of String, parameter "globalread" of String,
-           parameter "lockstat" of String, parameter "metadata" of mapping
-           from String to String, parameter "nar" of type "object_info"
-           (Information about an object, including user provided metadata.
-           obj_id objid - the numerical id of the object. obj_name name - the
-           name of the object. type_string type - the type of the object.
-           timestamp save_date - the save date of the object. obj_ver ver -
-           the version of the object. username saved_by - the user that saved
-           or copied the object. ws_id wsid - the workspace containing the
-           object. ws_name workspace - the workspace containing the object.
-           string chsum - the md5 checksum of the object. int size - the size
-           of the object in bytes. usermeta meta - arbitrary user-supplied
-           metadata about the object.) -> tuple of size 11: parameter "objid"
-           of Long, parameter "name" of String, parameter "type" of String,
-           parameter "save_date" of type "timestamp" (A time in the format
-           YYYY-MM-DDThh:mm:ssZ, where Z is either the character Z
-           (representing the UTC timezone) or the difference in time to UTC
-           in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500 (EST time)
-           2013-04-03T08:56:32+0000 (UTC time) 2013-04-03T08:56:32Z (UTC
-           time)), parameter "version" of Long, parameter "saved_by" of
-           String, parameter "wsid" of Long, parameter "workspace" of String,
-           parameter "chsum" of String, parameter "size" of Long, parameter
-           "meta" of mapping from String to String, parameter "permissions"
-           of list of type "UserPermission" -> structure: parameter
-           "username" of String, parameter "permission" of type "permission"
-           (Represents the permissions a user or users have to a workspace:
-           'a' - administrator. All operations allowed. 'w' - read/write. 'r'
-           - read. 'n' - no permissions.), parameter "profiles" of list of
-           type "UserProfile" (LIST ALL NARRATIVES) -> unspecified object,
-           (2) parameter "stats" of type "RunStats" -> structure: parameter
-           "timings" of list of tuple of size 2: String, Long
+           "ListAllNarrativesResult" (typedef structure { workspace_info
+           workspace; object_info object; list<UserPermission> permissions; }
+           NarrativeX;) -> structure: parameter "narratives" of list of type
+           "Narrative" -> structure: parameter "objectId" of type "obj_id",
+           parameter "objectVersion" of type "obj_ver", parameter "owner" of
+           String, parameter "permission" of String, parameter "isPublic" of
+           type "boolean" (@range [0,1]), parameter "isNarratorial" of type
+           "boolean" (@range [0,1]), parameter "title" of String, parameter
+           "savedTime" of Long, parameter "savedBy" of String, parameter
+           "permissions" of list of type "UserPermission" -> structure:
+           parameter "username" of String, parameter "permission" of type
+           "permission" (Represents the permissions a user or users have to a
+           workspace: 'a' - administrator. All operations allowed. 'w' -
+           read/write. 'r' - read. 'n' - no permissions.), parameter
+           "cellTypes" of list of type "NarrativeCellStat" (typedef
+           UnspecifiedObject NarrativePermission;) -> unspecified object,
+           parameter "apps" of list of type "NarrativeApp" -> unspecified
+           object, parameter "profiles" of list of type "UserProfile" (LIST
+           ALL NARRATIVES) -> unspecified object, (2) parameter "error" of
+           type "Error" -> structure: parameter "message" of String,
+           parameter "type" of String, parameter "code" of String, parameter
+           "info" of unspecified object, (3) parameter "stats" of type
+           "RunStats" -> structure: parameter "timings" of list of tuple of
+           size 2: String, Long
         """
         # ctx is the context object
-        # return variables are: result, stats
+        # return variables are: result, error, stats
         #BEGIN list_all_narratives
+        params, err = Validation.validate_list_all_narratives(ctx, params)
+        if err:
+            return None, err, None
+
         start = time()
 
         # The narrative model implements the interface to the services and any caching
         # mechanisms. Here we just need to pass it whatever it needs from here...
         #  model = self.make_model(token=ctx['token'])
-        model = NarrativeModel(
+        model = Model(
+            token=ctx['token'],
+            username=ctx['user_id'],
             config=self.call_config,
-            token=ctx['token']
         )
 
         # ws = Workspace(self.workspaceURL, token=ctx["token"])
@@ -184,83 +151,148 @@ class DashboardService:
         stats = {
             'timings': timings
         }
+        print('STATS', stats)
+        return [result, None, stats]
         #END list_all_narratives
 
         # At some point might do deeper type checking...
         if not isinstance(result, dict):
             raise ValueError('Method list_all_narratives return value ' +
                              'result is not type dict as required.')
+        if not isinstance(error, dict):
+            raise ValueError('Method list_all_narratives return value ' +
+                             'error is not type dict as required.')
         if not isinstance(stats, dict):
             raise ValueError('Method list_all_narratives return value ' +
                              'stats is not type dict as required.')
         # return the results
-        return [result, stats]
+        return [result, error, stats]
+
+    def create_narrative(self, ctx, param):
+        """
+        :param param: instance of type "CreateNarrativeParam" (Create
+           Narrative) -> structure: parameter "title" of String, parameter
+           "name" of type "ws_name"
+        :returns: multiple set - (1) parameter "result" of type
+           "CreateNarrativeResult" -> structure: parameter "narrative" of
+           type "Narrative" -> structure: parameter "objectId" of type
+           "obj_id", parameter "objectVersion" of type "obj_ver", parameter
+           "owner" of String, parameter "permission" of String, parameter
+           "isPublic" of type "boolean" (@range [0,1]), parameter
+           "isNarratorial" of type "boolean" (@range [0,1]), parameter
+           "title" of String, parameter "savedTime" of Long, parameter
+           "savedBy" of String, parameter "permissions" of list of type
+           "UserPermission" -> structure: parameter "username" of String,
+           parameter "permission" of type "permission" (Represents the
+           permissions a user or users have to a workspace: 'a' -
+           administrator. All operations allowed. 'w' - read/write. 'r' -
+           read. 'n' - no permissions.), parameter "cellTypes" of list of
+           type "NarrativeCellStat" (typedef UnspecifiedObject
+           NarrativePermission;) -> unspecified object, parameter "apps" of
+           list of type "NarrativeApp" -> unspecified object, (2) parameter
+           "error" of type "Error" -> structure: parameter "message" of
+           String, parameter "type" of String, parameter "code" of String,
+           parameter "info" of unspecified object
+        """
+        # ctx is the context object
+        # return variables are: result, error
+        #BEGIN create_narrative
+        param, err = Validation.validate_create_narrative(ctx, param)
+        if err:
+            return None, err
+
+        model = Model(
+            config=self.call_config,
+            token=ctx['token'],
+            username=ctx['user_id']
+        )
+
+        # obji = ObjectIdentity(workspace_id=params['obji'].get('workspace_id'),
+        #                       object_id=params['obji'].get('object_id'))
+
+        result, err2 = model.create_narrative(name=param['name'], title=param['title'])
+        return [{
+            'narrative': result
+        }, err2]
+        #END create_narrative
+
+        # At some point might do deeper type checking...
+        if not isinstance(result, dict):
+            raise ValueError('Method create_narrative return value ' +
+                             'result is not type dict as required.')
+        if not isinstance(error, dict):
+            raise ValueError('Method create_narrative return value ' +
+                             'error is not type dict as required.')
+        # return the results
+        return [result, error]
 
     def delete_narrative(self, ctx, params):
         """
-        :param params: instance of type "DeleteNarrativeParams" -> structure:
-           parameter "obji" of type "ObjectIdentity" -> structure: parameter
-           "workspace_id" of type "ws_id" (from workspace_deluxe Note too
-           that naming conventions for parameters using these types (may)
-           also use the workspace_deluxe conventions. workspace), parameter
-           "object_id" of type "obj_id", parameter "version" of type "obj_ver"
+        :param params: instance of type "DeleteNarrativeParams" (Delete
+           Narrative) -> structure: parameter "obji" of type "ObjectIdentity"
+           -> structure: parameter "workspace_id" of type "ws_id" (from
+           workspace_deluxe Note too that naming conventions for parameters
+           using these types (may) also use the workspace_deluxe conventions.
+           workspace), parameter "object_id" of type "obj_id", parameter
+           "version" of type "obj_ver"
+        :returns: instance of type "Error" -> structure: parameter "message"
+           of String, parameter "type" of String, parameter "code" of String,
+           parameter "info" of unspecified object
         """
         # ctx is the context object
+        # return variables are: error
         #BEGIN delete_narrative
-        if 'obji' not in params:
-            raise ValueError('"wsi" field, identifying the narrative workspace, required')
-
-        model = NarrativeModel(
-            config=self.call_config,
-            token=ctx['token']
-        )
-
-        obji = ObjectIdentity(workspace_id=params['obji'].get('workspace_id'),
-                              object_id=params['obji'].get('object_id'))
-
-        model.delete_narrative(obji=obji)
         #END delete_narrative
-        pass
+
+        # At some point might do deeper type checking...
+        if not isinstance(error, dict):
+            raise ValueError('Method delete_narrative return value ' +
+                             'error is not type dict as required.')
+        # return the results
+        return [error]
 
     def share_narrative(self, ctx, params):
         """
-        :param params: instance of type "ShareNarrativeParams" -> structure:
-           parameter "wsi" of type "WorkspaceIdentity" -> structure:
-           parameter "workspace" of type "ws_name", parameter "id" of type
-           "ws_id" (from workspace_deluxe Note too that naming conventions
-           for parameters using these types (may) also use the
-           workspace_deluxe conventions. workspace), parameter "users" of
-           list of type "username", parameter "permission" of type
-           "permission" (Represents the permissions a user or users have to a
-           workspace: 'a' - administrator. All operations allowed. 'w' -
-           read/write. 'r' - read. 'n' - no permissions.)
+        :param params: instance of type "ShareNarrativeParams" (Share
+           Narrative) -> structure: parameter "wsi" of type
+           "WorkspaceIdentity" -> structure: parameter "workspace" of type
+           "ws_name", parameter "id" of type "ws_id" (from workspace_deluxe
+           Note too that naming conventions for parameters using these types
+           (may) also use the workspace_deluxe conventions. workspace),
+           parameter "users" of list of type "username", parameter
+           "permission" of type "permission" (Represents the permissions a
+           user or users have to a workspace: 'a' - administrator. All
+           operations allowed. 'w' - read/write. 'r' - read. 'n' - no
+           permissions.)
+        :returns: instance of type "Error" -> structure: parameter "message"
+           of String, parameter "type" of String, parameter "code" of String,
+           parameter "info" of unspecified object
         """
         # ctx is the context object
+        # return variables are: error
         #BEGIN share_narrative
-        if 'wsi' not in params:
-            raise ValueError('"wsi" field, identifying the narrative workspace, ' +
-                             'is required but was not provided')
+        params, err = Validation.validate_share_narrative(ctx, params)
+        if err:
+            return [err]
 
         wsi = WorkspaceIdentity(id=params['wsi'].get('id'))
 
-        if 'users' not in params:
-            raise ValueError('"users" field, a list of usernames with whom to share, ' +
-                             'is required but was not provided')
-        users = params['users']
-
-        if 'permission' not in params:
-            raise ValueError('"permission" field, the permission to give the users, ' +
-                             'is required but was not provided')
-        permission = params['permission']
-
-        model = NarrativeModel(
+        model = Model(
             config=self.call_config,
-            token=ctx['token']
+            token=ctx['token'],
+            username=ctx['user_id']
         )
 
-        model.share_narrative(wsi=wsi, users=users, permission=permission)
+        model.share_narrative(wsi=wsi, users=params['users'], permission=params['permission'])
+        return [None]
         #END share_narrative
-        pass
+
+        # At some point might do deeper type checking...
+        if not isinstance(error, dict):
+            raise ValueError('Method share_narrative return value ' +
+                             'error is not type dict as required.')
+        # return the results
+        return [error]
 
     def unshare_narrative(self, ctx, params):
         """
@@ -271,32 +303,40 @@ class DashboardService:
            conventions for parameters using these types (may) also use the
            workspace_deluxe conventions. workspace), parameter "users" of
            list of type "username"
+        :returns: instance of type "Error" -> structure: parameter "message"
+           of String, parameter "type" of String, parameter "code" of String,
+           parameter "info" of unspecified object
         """
         # ctx is the context object
+        # return variables are: error
         #BEGIN unshare_narrative
-        if 'wsi' not in params:
-            raise ValueError('"wsi" field, identifying the narrative workspace, ' +
-                             'is required but was not provided')
+        params, err = Validation.validate_unshare_narrative(ctx, params)
+        if err:
+            return [err]
 
         wsi = WorkspaceIdentity(id=params['wsi'].get('id'))
-
-        if 'users' not in params:
-            raise ValueError('"users" field, a list of usernames with whom to share, ' +
-                             'is required but was not provided')
         users = params['users']
 
         # if 'timestamp' not in params:
         #     raise ValueError('"timestamp" field, the laste modified timestamp for '+
         #                      'the narrative, is required but was not provided')
 
-        model = NarrativeModel(
+        model = Model(
             config=self.call_config,
-            token=ctx['token']
+            token=ctx['token'],
+            username=ctx['user_id']
         )
 
         model.unshare_narrative(wsi=wsi, users=users)
+        return [None]
         #END unshare_narrative
-        pass
+
+        # At some point might do deeper type checking...
+        if not isinstance(error, dict):
+            raise ValueError('Method unshare_narrative return value ' +
+                             'error is not type dict as required.')
+        # return the results
+        return [error]
 
     def share_narrative_global(self, ctx, params):
         """
@@ -306,23 +346,21 @@ class DashboardService:
            of type "ws_id" (from workspace_deluxe Note too that naming
            conventions for parameters using these types (may) also use the
            workspace_deluxe conventions. workspace)
+        :returns: instance of type "Error" -> structure: parameter "message"
+           of String, parameter "type" of String, parameter "code" of String,
+           parameter "info" of unspecified object
         """
         # ctx is the context object
+        # return variables are: error
         #BEGIN share_narrative_global
-        if 'wsi' not in params:
-            raise ValueError('"wsi" field, identifying the narrative workspace, ' +
-                             'is required but was not provided')
-
-        wsi = WorkspaceIdentity(id=params['wsi'].get('id'))
-
-        model = NarrativeModel(
-            config=self.call_config,
-            token=ctx['token']
-        )
-
-        model.share_narrative_global(wsi=wsi)
         #END share_narrative_global
-        pass
+
+        # At some point might do deeper type checking...
+        if not isinstance(error, dict):
+            raise ValueError('Method share_narrative_global return value ' +
+                             'error is not type dict as required.')
+        # return the results
+        return [error]
 
     def unshare_narrative_global(self, ctx, params):
         """
@@ -332,23 +370,35 @@ class DashboardService:
            of type "ws_id" (from workspace_deluxe Note too that naming
            conventions for parameters using these types (may) also use the
            workspace_deluxe conventions. workspace)
+        :returns: instance of type "Error" -> structure: parameter "message"
+           of String, parameter "type" of String, parameter "code" of String,
+           parameter "info" of unspecified object
         """
         # ctx is the context object
+        # return variables are: error
         #BEGIN unshare_narrative_global
-        if 'wsi' not in params:
-            raise ValueError('"wsi" field, identifying the narrative workspace, ' +
-                             'is required but was not provided')
+        params, error = Validation.validate_unshare_narrative_global(ctx, params)
+        if error:
+            return [error]
 
         wsi = WorkspaceIdentity(id=params['wsi'].get('id'))
-
-        model = NarrativeModel(
+ 
+        model = Model(
             config=self.call_config,
-            token=ctx['token']
+            token=ctx['token'],
+            username=ctx['user_id']
         )
 
         model.unshare_narrative_global(wsi=wsi)
+        return [None]
         #END unshare_narrative_global
-        pass
+
+        # At some point might do deeper type checking...
+        if not isinstance(error, dict):
+            raise ValueError('Method unshare_narrative_global return value ' +
+                             'error is not type dict as required.')
+        # return the results
+        return [error]
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",

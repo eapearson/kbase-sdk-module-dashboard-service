@@ -15,7 +15,13 @@ import us.kbase.common.service.UObject;
 
 /**
  * <p>Original spec-file type: ListAllNarrativesResult</p>
- * 
+ * <pre>
+ * typedef structure {
+ * workspace_info workspace;
+ * object_info object;
+ * list<UserPermission> permissions;
+ *     } NarrativeX;
+ * </pre>
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -27,22 +33,22 @@ import us.kbase.common.service.UObject;
 public class ListAllNarrativesResult {
 
     @JsonProperty("narratives")
-    private List<NarrativeX> narratives;
+    private List<Narrative> narratives;
     @JsonProperty("profiles")
     private List<UObject> profiles;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("narratives")
-    public List<NarrativeX> getNarratives() {
+    public List<Narrative> getNarratives() {
         return narratives;
     }
 
     @JsonProperty("narratives")
-    public void setNarratives(List<NarrativeX> narratives) {
+    public void setNarratives(List<Narrative> narratives) {
         this.narratives = narratives;
     }
 
-    public ListAllNarrativesResult withNarratives(List<NarrativeX> narratives) {
+    public ListAllNarrativesResult withNarratives(List<Narrative> narratives) {
         this.narratives = narratives;
         return this;
     }

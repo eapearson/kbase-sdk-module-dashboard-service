@@ -16,7 +16,9 @@ SDK_BIN_DIR = /kb/kb_sdk/bin
 
 default: compile
 
-all: compile build build-startup-script build-executable-script build-test-script
+install: compile build build-startup-script build-executable-script build-test-script
+
+all: build build-startup-script build-executable-script build-test-script
 
 compile:
 	kb-sdk compile $(SPEC_FILE) \
@@ -56,6 +58,7 @@ build-test-script:
 	echo 'export KB_AUTH_TOKEN=`cat /kb/module/work/token`' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
 	echo 'export PYTHONPATH=$$script_dir/../$(LIB_DIR):$$PATH:$$PYTHONPATH' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
 	echo 'cd $$script_dir/../$(TEST_DIR)' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
+	echo 'python -m MockServers.run_server --port 5001 --host "localhost" &' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
 	echo 'python -m nose --with-coverage --cover-package=DashboardService --cover-html --cover-html-dir=/kb/module/work/cover_html --nocapture .' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
 	chmod +x $(TEST_DIR)/$(TEST_SCRIPT_NAME)
 
@@ -84,11 +87,20 @@ sdk-test:
 	cd $(DIR)
 	kb-sdk test
 
-dev-image:
-	echo 'Making dev image...'
-	# cd $(DIR)/deployment; bash ./tools/prepare-docker.sh
-	cd $(DIR)/deployment; bash ./tools/build-docker.sh
+# dev-image:
+# 	echo 'Making dev image...'
+# 	# cd $(DIR)/deployment; bash ./tools/prepare-docker.sh
+# 	cd $(DIR)/deployment; bash ./tools/build-docker.sh
 
-run-dev-image:
-	bash $(DIR)/deployment/tools/run-bash.sh
+# run-dev-image:
+# 	bash $(DIR)/deployment/tools/run-bash.sh
+
+
+docker-image-dev:
+	@echo "Creating local image for development or testing"
+	bash scripts/build-docker-image-dev.bash
+
+run-docker-image-dev:
+	echo "Running the already-built docker image"
+	bash scripts/run-docker-image-dev.bash
 	

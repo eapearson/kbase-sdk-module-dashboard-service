@@ -337,6 +337,10 @@ class Application(object):
                              name='DashboardService.list_all_narratives',
                              types=[dict])
         self.method_authentication['DashboardService.list_all_narratives'] = 'optional'  # noqa
+        self.rpc_service.add(impl_DashboardService.create_narrative,
+                             name='DashboardService.create_narrative',
+                             types=[dict])
+        self.method_authentication['DashboardService.create_narrative'] = 'required'  # noqa
         self.rpc_service.add(impl_DashboardService.delete_narrative,
                              name='DashboardService.delete_narrative',
                              types=[dict])

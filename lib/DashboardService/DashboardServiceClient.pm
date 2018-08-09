@@ -110,7 +110,7 @@ sub new
 
 =head2 list_all_narratives
 
-  $result, $stats = $obj->list_all_narratives($params)
+  $result, $error, $stats = $obj->list_all_narratives($params)
 
 =over 4
 
@@ -121,43 +121,42 @@ sub new
 <pre>
 $params is a DashboardService.ListAllNarrativesParams
 $result is a DashboardService.ListAllNarrativesResult
+$error is a DashboardService.Error
 $stats is a DashboardService.RunStats
-ListAllNarrativesParams is a reference to a hash where the following keys are defined
-ListAllNarrativesResult is a reference to a hash where the following keys are defined:
-	narratives has a value which is a reference to a list where each element is a DashboardService.NarrativeX
-	profiles has a value which is a reference to a list where each element is a DashboardService.UserProfile
-NarrativeX is a reference to a hash where the following keys are defined:
-	ws has a value which is a DashboardService.workspace_info
-	nar has a value which is a DashboardService.object_info
-	permissions has a value which is a reference to a list where each element is a DashboardService.UserPermission
-workspace_info is a reference to a list containing 9 items:
-	0: (id) an int
-	1: (workspace) a string
-	2: (owner) a string
-	3: (moddate) a string
-	4: (max_objid) an int
-	5: (user_permission) a string
-	6: (globalread) a string
-	7: (lockstat) a string
-	8: (metadata) a reference to a hash where the key is a string and the value is a string
-object_info is a reference to a list containing 11 items:
-	0: (objid) an int
-	1: (name) a string
-	2: (type) a string
-	3: (save_date) a DashboardService.timestamp
-	4: (version) an int
-	5: (saved_by) a string
-	6: (wsid) an int
-	7: (workspace) a string
-	8: (chsum) a string
-	9: (size) an int
-	10: (meta) a reference to a hash where the key is a string and the value is a string
+ListAllNarrativesParams is a reference to a hash where the following keys are defined:
+	just_modified_after has a value which is a DashboardService.timestamp
 timestamp is a string
+ListAllNarrativesResult is a reference to a hash where the following keys are defined:
+	narratives has a value which is a reference to a list where each element is a DashboardService.Narrative
+	profiles has a value which is a reference to a list where each element is a DashboardService.UserProfile
+Narrative is a reference to a hash where the following keys are defined:
+	objectId has a value which is a DashboardService.obj_id
+	objectVersion has a value which is a DashboardService.obj_ver
+	owner has a value which is a string
+	permission has a value which is a string
+	isPublic has a value which is a DashboardService.boolean
+	isNarratorial has a value which is a DashboardService.boolean
+	title has a value which is a string
+	savedTime has a value which is an int
+	savedBy has a value which is a string
+	permissions has a value which is a reference to a list where each element is a DashboardService.UserPermission
+	cellTypes has a value which is a reference to a list where each element is a DashboardService.NarrativeCellStat
+	apps has a value which is a reference to a list where each element is a DashboardService.NarrativeApp
+obj_id is an int
+obj_ver is an int
+boolean is an int
 UserPermission is a reference to a hash where the following keys are defined:
 	username has a value which is a string
 	permission has a value which is a DashboardService.permission
 permission is a string
+NarrativeCellStat is an UnspecifiedObject, which can hold any non-null object
+NarrativeApp is an UnspecifiedObject, which can hold any non-null object
 UserProfile is an UnspecifiedObject, which can hold any non-null object
+Error is a reference to a hash where the following keys are defined:
+	message has a value which is a string
+	type has a value which is a string
+	code has a value which is a string
+	info has a value which is an UnspecifiedObject, which can hold any non-null object
 RunStats is a reference to a hash where the following keys are defined:
 	timings has a value which is a reference to a list where each element is a reference to a list containing 2 items:
 		0: a string
@@ -172,43 +171,42 @@ RunStats is a reference to a hash where the following keys are defined:
 
 $params is a DashboardService.ListAllNarrativesParams
 $result is a DashboardService.ListAllNarrativesResult
+$error is a DashboardService.Error
 $stats is a DashboardService.RunStats
-ListAllNarrativesParams is a reference to a hash where the following keys are defined
-ListAllNarrativesResult is a reference to a hash where the following keys are defined:
-	narratives has a value which is a reference to a list where each element is a DashboardService.NarrativeX
-	profiles has a value which is a reference to a list where each element is a DashboardService.UserProfile
-NarrativeX is a reference to a hash where the following keys are defined:
-	ws has a value which is a DashboardService.workspace_info
-	nar has a value which is a DashboardService.object_info
-	permissions has a value which is a reference to a list where each element is a DashboardService.UserPermission
-workspace_info is a reference to a list containing 9 items:
-	0: (id) an int
-	1: (workspace) a string
-	2: (owner) a string
-	3: (moddate) a string
-	4: (max_objid) an int
-	5: (user_permission) a string
-	6: (globalread) a string
-	7: (lockstat) a string
-	8: (metadata) a reference to a hash where the key is a string and the value is a string
-object_info is a reference to a list containing 11 items:
-	0: (objid) an int
-	1: (name) a string
-	2: (type) a string
-	3: (save_date) a DashboardService.timestamp
-	4: (version) an int
-	5: (saved_by) a string
-	6: (wsid) an int
-	7: (workspace) a string
-	8: (chsum) a string
-	9: (size) an int
-	10: (meta) a reference to a hash where the key is a string and the value is a string
+ListAllNarrativesParams is a reference to a hash where the following keys are defined:
+	just_modified_after has a value which is a DashboardService.timestamp
 timestamp is a string
+ListAllNarrativesResult is a reference to a hash where the following keys are defined:
+	narratives has a value which is a reference to a list where each element is a DashboardService.Narrative
+	profiles has a value which is a reference to a list where each element is a DashboardService.UserProfile
+Narrative is a reference to a hash where the following keys are defined:
+	objectId has a value which is a DashboardService.obj_id
+	objectVersion has a value which is a DashboardService.obj_ver
+	owner has a value which is a string
+	permission has a value which is a string
+	isPublic has a value which is a DashboardService.boolean
+	isNarratorial has a value which is a DashboardService.boolean
+	title has a value which is a string
+	savedTime has a value which is an int
+	savedBy has a value which is a string
+	permissions has a value which is a reference to a list where each element is a DashboardService.UserPermission
+	cellTypes has a value which is a reference to a list where each element is a DashboardService.NarrativeCellStat
+	apps has a value which is a reference to a list where each element is a DashboardService.NarrativeApp
+obj_id is an int
+obj_ver is an int
+boolean is an int
 UserPermission is a reference to a hash where the following keys are defined:
 	username has a value which is a string
 	permission has a value which is a DashboardService.permission
 permission is a string
+NarrativeCellStat is an UnspecifiedObject, which can hold any non-null object
+NarrativeApp is an UnspecifiedObject, which can hold any non-null object
 UserProfile is an UnspecifiedObject, which can hold any non-null object
+Error is a reference to a hash where the following keys are defined:
+	message has a value which is a string
+	type has a value which is a string
+	code has a value which is a string
+	info has a value which is an UnspecifiedObject, which can hold any non-null object
 RunStats is a reference to a hash where the following keys are defined:
 	timings has a value which is a reference to a list where each element is a reference to a list containing 2 items:
 		0: a string
@@ -274,9 +272,159 @@ RunStats is a reference to a hash where the following keys are defined:
  
 
 
+=head2 create_narrative
+
+  $result, $error = $obj->create_narrative($param)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$param is a DashboardService.CreateNarrativeParam
+$result is a DashboardService.CreateNarrativeResult
+$error is a DashboardService.Error
+CreateNarrativeParam is a reference to a hash where the following keys are defined:
+	title has a value which is a string
+	name has a value which is a DashboardService.ws_name
+ws_name is a string
+CreateNarrativeResult is a reference to a hash where the following keys are defined:
+	narrative has a value which is a DashboardService.Narrative
+Narrative is a reference to a hash where the following keys are defined:
+	objectId has a value which is a DashboardService.obj_id
+	objectVersion has a value which is a DashboardService.obj_ver
+	owner has a value which is a string
+	permission has a value which is a string
+	isPublic has a value which is a DashboardService.boolean
+	isNarratorial has a value which is a DashboardService.boolean
+	title has a value which is a string
+	savedTime has a value which is an int
+	savedBy has a value which is a string
+	permissions has a value which is a reference to a list where each element is a DashboardService.UserPermission
+	cellTypes has a value which is a reference to a list where each element is a DashboardService.NarrativeCellStat
+	apps has a value which is a reference to a list where each element is a DashboardService.NarrativeApp
+obj_id is an int
+obj_ver is an int
+boolean is an int
+UserPermission is a reference to a hash where the following keys are defined:
+	username has a value which is a string
+	permission has a value which is a DashboardService.permission
+permission is a string
+NarrativeCellStat is an UnspecifiedObject, which can hold any non-null object
+NarrativeApp is an UnspecifiedObject, which can hold any non-null object
+Error is a reference to a hash where the following keys are defined:
+	message has a value which is a string
+	type has a value which is a string
+	code has a value which is a string
+	info has a value which is an UnspecifiedObject, which can hold any non-null object
+
+</pre>
+
+=end html
+
+=begin text
+
+$param is a DashboardService.CreateNarrativeParam
+$result is a DashboardService.CreateNarrativeResult
+$error is a DashboardService.Error
+CreateNarrativeParam is a reference to a hash where the following keys are defined:
+	title has a value which is a string
+	name has a value which is a DashboardService.ws_name
+ws_name is a string
+CreateNarrativeResult is a reference to a hash where the following keys are defined:
+	narrative has a value which is a DashboardService.Narrative
+Narrative is a reference to a hash where the following keys are defined:
+	objectId has a value which is a DashboardService.obj_id
+	objectVersion has a value which is a DashboardService.obj_ver
+	owner has a value which is a string
+	permission has a value which is a string
+	isPublic has a value which is a DashboardService.boolean
+	isNarratorial has a value which is a DashboardService.boolean
+	title has a value which is a string
+	savedTime has a value which is an int
+	savedBy has a value which is a string
+	permissions has a value which is a reference to a list where each element is a DashboardService.UserPermission
+	cellTypes has a value which is a reference to a list where each element is a DashboardService.NarrativeCellStat
+	apps has a value which is a reference to a list where each element is a DashboardService.NarrativeApp
+obj_id is an int
+obj_ver is an int
+boolean is an int
+UserPermission is a reference to a hash where the following keys are defined:
+	username has a value which is a string
+	permission has a value which is a DashboardService.permission
+permission is a string
+NarrativeCellStat is an UnspecifiedObject, which can hold any non-null object
+NarrativeApp is an UnspecifiedObject, which can hold any non-null object
+Error is a reference to a hash where the following keys are defined:
+	message has a value which is a string
+	type has a value which is a string
+	code has a value which is a string
+	info has a value which is an UnspecifiedObject, which can hold any non-null object
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub create_narrative
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function create_narrative (received $n, expecting 1)");
+    }
+    {
+	my($param) = @args;
+
+	my @_bad_arguments;
+        (ref($param) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"param\" (value was \"$param\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to create_narrative:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'create_narrative');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "DashboardService.create_narrative",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'create_narrative',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method create_narrative",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'create_narrative',
+				       );
+    }
+}
+ 
+
+
 =head2 delete_narrative
 
-  $obj->delete_narrative($params)
+  $error = $obj->delete_narrative($params)
 
 =over 4
 
@@ -286,6 +434,7 @@ RunStats is a reference to a hash where the following keys are defined:
 
 <pre>
 $params is a DashboardService.DeleteNarrativeParams
+$error is a DashboardService.Error
 DeleteNarrativeParams is a reference to a hash where the following keys are defined:
 	obji has a value which is a DashboardService.ObjectIdentity
 ObjectIdentity is a reference to a hash where the following keys are defined:
@@ -295,6 +444,11 @@ ObjectIdentity is a reference to a hash where the following keys are defined:
 ws_id is an int
 obj_id is an int
 obj_ver is an int
+Error is a reference to a hash where the following keys are defined:
+	message has a value which is a string
+	type has a value which is a string
+	code has a value which is a string
+	info has a value which is an UnspecifiedObject, which can hold any non-null object
 
 </pre>
 
@@ -303,6 +457,7 @@ obj_ver is an int
 =begin text
 
 $params is a DashboardService.DeleteNarrativeParams
+$error is a DashboardService.Error
 DeleteNarrativeParams is a reference to a hash where the following keys are defined:
 	obji has a value which is a DashboardService.ObjectIdentity
 ObjectIdentity is a reference to a hash where the following keys are defined:
@@ -312,6 +467,11 @@ ObjectIdentity is a reference to a hash where the following keys are defined:
 ws_id is an int
 obj_id is an int
 obj_ver is an int
+Error is a reference to a hash where the following keys are defined:
+	message has a value which is a string
+	type has a value which is a string
+	code has a value which is a string
+	info has a value which is an UnspecifiedObject, which can hold any non-null object
 
 
 =end text
@@ -360,7 +520,7 @@ obj_ver is an int
 					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
 					      );
 	} else {
-	    return;
+	    return wantarray ? @{$result->result} : $result->result->[0];
 	}
     } else {
         Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method delete_narrative",
@@ -374,7 +534,7 @@ obj_ver is an int
 
 =head2 share_narrative
 
-  $obj->share_narrative($params)
+  $error = $obj->share_narrative($params)
 
 =over 4
 
@@ -384,6 +544,7 @@ obj_ver is an int
 
 <pre>
 $params is a DashboardService.ShareNarrativeParams
+$error is a DashboardService.Error
 ShareNarrativeParams is a reference to a hash where the following keys are defined:
 	wsi has a value which is a DashboardService.WorkspaceIdentity
 	users has a value which is a reference to a list where each element is a DashboardService.username
@@ -395,6 +556,11 @@ ws_name is a string
 ws_id is an int
 username is a string
 permission is a string
+Error is a reference to a hash where the following keys are defined:
+	message has a value which is a string
+	type has a value which is a string
+	code has a value which is a string
+	info has a value which is an UnspecifiedObject, which can hold any non-null object
 
 </pre>
 
@@ -403,6 +569,7 @@ permission is a string
 =begin text
 
 $params is a DashboardService.ShareNarrativeParams
+$error is a DashboardService.Error
 ShareNarrativeParams is a reference to a hash where the following keys are defined:
 	wsi has a value which is a DashboardService.WorkspaceIdentity
 	users has a value which is a reference to a list where each element is a DashboardService.username
@@ -414,6 +581,11 @@ ws_name is a string
 ws_id is an int
 username is a string
 permission is a string
+Error is a reference to a hash where the following keys are defined:
+	message has a value which is a string
+	type has a value which is a string
+	code has a value which is a string
+	info has a value which is an UnspecifiedObject, which can hold any non-null object
 
 
 =end text
@@ -462,7 +634,7 @@ permission is a string
 					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
 					      );
 	} else {
-	    return;
+	    return wantarray ? @{$result->result} : $result->result->[0];
 	}
     } else {
         Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method share_narrative",
@@ -476,7 +648,7 @@ permission is a string
 
 =head2 unshare_narrative
 
-  $obj->unshare_narrative($params)
+  $error = $obj->unshare_narrative($params)
 
 =over 4
 
@@ -486,6 +658,7 @@ permission is a string
 
 <pre>
 $params is a DashboardService.UnshareNarrativeParams
+$error is a DashboardService.Error
 UnshareNarrativeParams is a reference to a hash where the following keys are defined:
 	wsi has a value which is a DashboardService.WorkspaceIdentity
 	users has a value which is a reference to a list where each element is a DashboardService.username
@@ -495,6 +668,11 @@ WorkspaceIdentity is a reference to a hash where the following keys are defined:
 ws_name is a string
 ws_id is an int
 username is a string
+Error is a reference to a hash where the following keys are defined:
+	message has a value which is a string
+	type has a value which is a string
+	code has a value which is a string
+	info has a value which is an UnspecifiedObject, which can hold any non-null object
 
 </pre>
 
@@ -503,6 +681,7 @@ username is a string
 =begin text
 
 $params is a DashboardService.UnshareNarrativeParams
+$error is a DashboardService.Error
 UnshareNarrativeParams is a reference to a hash where the following keys are defined:
 	wsi has a value which is a DashboardService.WorkspaceIdentity
 	users has a value which is a reference to a list where each element is a DashboardService.username
@@ -512,6 +691,11 @@ WorkspaceIdentity is a reference to a hash where the following keys are defined:
 ws_name is a string
 ws_id is an int
 username is a string
+Error is a reference to a hash where the following keys are defined:
+	message has a value which is a string
+	type has a value which is a string
+	code has a value which is a string
+	info has a value which is an UnspecifiedObject, which can hold any non-null object
 
 
 =end text
@@ -560,7 +744,7 @@ username is a string
 					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
 					      );
 	} else {
-	    return;
+	    return wantarray ? @{$result->result} : $result->result->[0];
 	}
     } else {
         Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method unshare_narrative",
@@ -574,7 +758,7 @@ username is a string
 
 =head2 share_narrative_global
 
-  $obj->share_narrative_global($params)
+  $error = $obj->share_narrative_global($params)
 
 =over 4
 
@@ -584,6 +768,7 @@ username is a string
 
 <pre>
 $params is a DashboardService.ShareNarrativeGlobalParams
+$error is a DashboardService.Error
 ShareNarrativeGlobalParams is a reference to a hash where the following keys are defined:
 	wsi has a value which is a DashboardService.WorkspaceIdentity
 WorkspaceIdentity is a reference to a hash where the following keys are defined:
@@ -591,6 +776,11 @@ WorkspaceIdentity is a reference to a hash where the following keys are defined:
 	id has a value which is a DashboardService.ws_id
 ws_name is a string
 ws_id is an int
+Error is a reference to a hash where the following keys are defined:
+	message has a value which is a string
+	type has a value which is a string
+	code has a value which is a string
+	info has a value which is an UnspecifiedObject, which can hold any non-null object
 
 </pre>
 
@@ -599,6 +789,7 @@ ws_id is an int
 =begin text
 
 $params is a DashboardService.ShareNarrativeGlobalParams
+$error is a DashboardService.Error
 ShareNarrativeGlobalParams is a reference to a hash where the following keys are defined:
 	wsi has a value which is a DashboardService.WorkspaceIdentity
 WorkspaceIdentity is a reference to a hash where the following keys are defined:
@@ -606,6 +797,11 @@ WorkspaceIdentity is a reference to a hash where the following keys are defined:
 	id has a value which is a DashboardService.ws_id
 ws_name is a string
 ws_id is an int
+Error is a reference to a hash where the following keys are defined:
+	message has a value which is a string
+	type has a value which is a string
+	code has a value which is a string
+	info has a value which is an UnspecifiedObject, which can hold any non-null object
 
 
 =end text
@@ -654,7 +850,7 @@ ws_id is an int
 					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
 					      );
 	} else {
-	    return;
+	    return wantarray ? @{$result->result} : $result->result->[0];
 	}
     } else {
         Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method share_narrative_global",
@@ -668,7 +864,7 @@ ws_id is an int
 
 =head2 unshare_narrative_global
 
-  $obj->unshare_narrative_global($params)
+  $error = $obj->unshare_narrative_global($params)
 
 =over 4
 
@@ -678,6 +874,7 @@ ws_id is an int
 
 <pre>
 $params is a DashboardService.UnshareNarrativeGlobalParams
+$error is a DashboardService.Error
 UnshareNarrativeGlobalParams is a reference to a hash where the following keys are defined:
 	wsi has a value which is a DashboardService.WorkspaceIdentity
 WorkspaceIdentity is a reference to a hash where the following keys are defined:
@@ -685,6 +882,11 @@ WorkspaceIdentity is a reference to a hash where the following keys are defined:
 	id has a value which is a DashboardService.ws_id
 ws_name is a string
 ws_id is an int
+Error is a reference to a hash where the following keys are defined:
+	message has a value which is a string
+	type has a value which is a string
+	code has a value which is a string
+	info has a value which is an UnspecifiedObject, which can hold any non-null object
 
 </pre>
 
@@ -693,6 +895,7 @@ ws_id is an int
 =begin text
 
 $params is a DashboardService.UnshareNarrativeGlobalParams
+$error is a DashboardService.Error
 UnshareNarrativeGlobalParams is a reference to a hash where the following keys are defined:
 	wsi has a value which is a DashboardService.WorkspaceIdentity
 WorkspaceIdentity is a reference to a hash where the following keys are defined:
@@ -700,6 +903,11 @@ WorkspaceIdentity is a reference to a hash where the following keys are defined:
 	id has a value which is a DashboardService.ws_id
 ws_name is a string
 ws_id is an int
+Error is a reference to a hash where the following keys are defined:
+	message has a value which is a string
+	type has a value which is a string
+	code has a value which is a string
+	info has a value which is an UnspecifiedObject, which can hold any non-null object
 
 
 =end text
@@ -748,7 +956,7 @@ ws_id is an int
 					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
 					      );
 	} else {
-	    return;
+	    return wantarray ? @{$result->result} : $result->result->[0];
 	}
     } else {
         Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method unshare_narrative_global",
@@ -844,6 +1052,42 @@ sub _validate_version {
 }
 
 =head1 TYPES
+
+
+
+=head2 Error
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+message has a value which is a string
+type has a value which is a string
+code has a value which is a string
+info has a value which is an UnspecifiedObject, which can hold any non-null object
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+message has a value which is a string
+type has a value which is a string
+code has a value which is a string
+info has a value which is an UnspecifiedObject, which can hold any non-null object
+
+
+=end text
+
+=back
 
 
 
@@ -1533,7 +1777,7 @@ a reference to a list containing 3 items:
 
 
 
-=head2 Narrative
+=head2 NarrativeCellStat
 
 =over 4
 
@@ -1541,7 +1785,7 @@ a reference to a list containing 3 items:
 
 =item Description
 
-Listing Narratives / Naratorials (plus Narratorial Management)
+typedef UnspecifiedObject NarrativePermission;
 
 
 =item Definition
@@ -1549,20 +1793,14 @@ Listing Narratives / Naratorials (plus Narratorial Management)
 =begin html
 
 <pre>
-a reference to a hash where the following keys are defined:
-ws has a value which is a DashboardService.workspace_info
-nar has a value which is a DashboardService.object_info
-
+an UnspecifiedObject, which can hold any non-null object
 </pre>
 
 =end html
 
 =begin text
 
-a reference to a hash where the following keys are defined:
-ws has a value which is a DashboardService.workspace_info
-nar has a value which is a DashboardService.object_info
-
+an UnspecifiedObject, which can hold any non-null object
 
 =end text
 
@@ -1570,45 +1808,10 @@ nar has a value which is a DashboardService.object_info
 
 
 
-=head2 NarrativeList
+=head2 NarrativeApp
 
 =over 4
 
-
-
-=item Definition
-
-=begin html
-
-<pre>
-a reference to a hash where the following keys are defined:
-narratives has a value which is a reference to a list where each element is a DashboardService.Narrative
-
-</pre>
-
-=end html
-
-=begin text
-
-a reference to a hash where the following keys are defined:
-narratives has a value which is a reference to a list where each element is a DashboardService.Narrative
-
-
-=end text
-
-=back
-
-
-
-=head2 UserProfile
-
-=over 4
-
-
-
-=item Description
-
-LIST ALL NARRATIVES
 
 
 =item Definition
@@ -1663,7 +1866,7 @@ permission has a value which is a DashboardService.permission
 
 
 
-=head2 NarrativeX
+=head2 Narrative
 
 =over 4
 
@@ -1675,9 +1878,18 @@ permission has a value which is a DashboardService.permission
 
 <pre>
 a reference to a hash where the following keys are defined:
-ws has a value which is a DashboardService.workspace_info
-nar has a value which is a DashboardService.object_info
+objectId has a value which is a DashboardService.obj_id
+objectVersion has a value which is a DashboardService.obj_ver
+owner has a value which is a string
+permission has a value which is a string
+isPublic has a value which is a DashboardService.boolean
+isNarratorial has a value which is a DashboardService.boolean
+title has a value which is a string
+savedTime has a value which is an int
+savedBy has a value which is a string
 permissions has a value which is a reference to a list where each element is a DashboardService.UserPermission
+cellTypes has a value which is a reference to a list where each element is a DashboardService.NarrativeCellStat
+apps has a value which is a reference to a list where each element is a DashboardService.NarrativeApp
 
 </pre>
 
@@ -1686,10 +1898,50 @@ permissions has a value which is a reference to a list where each element is a D
 =begin text
 
 a reference to a hash where the following keys are defined:
-ws has a value which is a DashboardService.workspace_info
-nar has a value which is a DashboardService.object_info
+objectId has a value which is a DashboardService.obj_id
+objectVersion has a value which is a DashboardService.obj_ver
+owner has a value which is a string
+permission has a value which is a string
+isPublic has a value which is a DashboardService.boolean
+isNarratorial has a value which is a DashboardService.boolean
+title has a value which is a string
+savedTime has a value which is an int
+savedBy has a value which is a string
 permissions has a value which is a reference to a list where each element is a DashboardService.UserPermission
+cellTypes has a value which is a reference to a list where each element is a DashboardService.NarrativeCellStat
+apps has a value which is a reference to a list where each element is a DashboardService.NarrativeApp
 
+
+=end text
+
+=back
+
+
+
+=head2 UserProfile
+
+=over 4
+
+
+
+=item Description
+
+LIST ALL NARRATIVES
+
+
+=item Definition
+
+=begin html
+
+<pre>
+an UnspecifiedObject, which can hold any non-null object
+</pre>
+
+=end html
+
+=begin text
+
+an UnspecifiedObject, which can hold any non-null object
 
 =end text
 
@@ -1703,13 +1955,22 @@ permissions has a value which is a reference to a list where each element is a D
 
 
 
+=item Description
+
+typedef structure {
+workspace_info workspace;
+object_info object;
+list<UserPermission> permissions;
+    } NarrativeX;
+
+
 =item Definition
 
 =begin html
 
 <pre>
 a reference to a hash where the following keys are defined:
-narratives has a value which is a reference to a list where each element is a DashboardService.NarrativeX
+narratives has a value which is a reference to a list where each element is a DashboardService.Narrative
 profiles has a value which is a reference to a list where each element is a DashboardService.UserProfile
 
 </pre>
@@ -1719,7 +1980,7 @@ profiles has a value which is a reference to a list where each element is a Dash
 =begin text
 
 a reference to a hash where the following keys are defined:
-narratives has a value which is a reference to a list where each element is a DashboardService.NarrativeX
+narratives has a value which is a reference to a list where each element is a DashboardService.Narrative
 profiles has a value which is a reference to a list where each element is a DashboardService.UserProfile
 
 
@@ -1740,14 +2001,18 @@ profiles has a value which is a reference to a list where each element is a Dash
 =begin html
 
 <pre>
-a reference to a hash where the following keys are defined
+a reference to a hash where the following keys are defined:
+just_modified_after has a value which is a DashboardService.timestamp
+
 </pre>
 
 =end html
 
 =begin text
 
-a reference to a hash where the following keys are defined
+a reference to a hash where the following keys are defined:
+just_modified_after has a value which is a DashboardService.timestamp
+
 
 =end text
 
@@ -1791,10 +2056,82 @@ timings has a value which is a reference to a list where each element is a refer
 
 
 
+=head2 CreateNarrativeParam
+
+=over 4
+
+
+
+=item Description
+
+Create Narrative
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+title has a value which is a string
+name has a value which is a DashboardService.ws_name
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+title has a value which is a string
+name has a value which is a DashboardService.ws_name
+
+
+=end text
+
+=back
+
+
+
+=head2 CreateNarrativeResult
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+narrative has a value which is a DashboardService.Narrative
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+narrative has a value which is a DashboardService.Narrative
+
+
+=end text
+
+=back
+
+
+
 =head2 DeleteNarrativeParams
 
 =over 4
 
+
+
+=item Description
+
+Delete Narrative
 
 
 =item Definition
@@ -1825,6 +2162,11 @@ obji has a value which is a DashboardService.ObjectIdentity
 
 =over 4
 
+
+
+=item Description
+
+Share Narrative
 
 
 =item Definition

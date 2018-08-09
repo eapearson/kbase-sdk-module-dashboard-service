@@ -12,50 +12,53 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * <p>Original spec-file type: DeleteNarrativeParams</p>
+ * <p>Original spec-file type: CreateNarrativeParam</p>
  * <pre>
- * Delete Narrative
+ * Create Narrative
  * </pre>
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "obji"
+    "title",
+    "name"
 })
-public class DeleteNarrativeParams {
+public class CreateNarrativeParam {
 
-    /**
-     * <p>Original spec-file type: ObjectIdentity</p>
-     * 
-     * 
-     */
-    @JsonProperty("obji")
-    private ObjectIdentity obji;
+    @JsonProperty("title")
+    private String title;
+    @JsonProperty("name")
+    private String name;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    /**
-     * <p>Original spec-file type: ObjectIdentity</p>
-     * 
-     * 
-     */
-    @JsonProperty("obji")
-    public ObjectIdentity getObji() {
-        return obji;
+    @JsonProperty("title")
+    public String getTitle() {
+        return title;
     }
 
-    /**
-     * <p>Original spec-file type: ObjectIdentity</p>
-     * 
-     * 
-     */
-    @JsonProperty("obji")
-    public void setObji(ObjectIdentity obji) {
-        this.obji = obji;
+    @JsonProperty("title")
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public DeleteNarrativeParams withObji(ObjectIdentity obji) {
-        this.obji = obji;
+    public CreateNarrativeParam withTitle(String title) {
+        this.title = title;
+        return this;
+    }
+
+    @JsonProperty("name")
+    public String getName() {
+        return name;
+    }
+
+    @JsonProperty("name")
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public CreateNarrativeParam withName(String name) {
+        this.name = name;
         return this;
     }
 
@@ -71,7 +74,7 @@ public class DeleteNarrativeParams {
 
     @Override
     public String toString() {
-        return ((((("DeleteNarrativeParams"+" [obji=")+ obji)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((("CreateNarrativeParam"+" [title=")+ title)+", name=")+ name)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

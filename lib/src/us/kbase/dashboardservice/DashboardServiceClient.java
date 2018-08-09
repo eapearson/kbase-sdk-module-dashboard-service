@@ -12,6 +12,7 @@ import us.kbase.common.service.JsonClientCaller;
 import us.kbase.common.service.JsonClientException;
 import us.kbase.common.service.RpcContext;
 import us.kbase.common.service.Tuple2;
+import us.kbase.common.service.Tuple3;
 import us.kbase.common.service.UnauthorizedException;
 
 /**
@@ -168,15 +169,32 @@ public class DashboardServiceClient {
      * <pre>
      * </pre>
      * @param   params   instance of type {@link us.kbase.dashboardservice.ListAllNarrativesParams ListAllNarrativesParams}
-     * @return   multiple set: (1) parameter "result" of type {@link us.kbase.dashboardservice.ListAllNarrativesResult ListAllNarrativesResult}, (2) parameter "stats" of type {@link us.kbase.dashboardservice.RunStats RunStats}
+     * @return   multiple set: (1) parameter "result" of type {@link us.kbase.dashboardservice.ListAllNarrativesResult ListAllNarrativesResult}, (2) parameter "error" of type {@link us.kbase.dashboardservice.Error Error}, (3) parameter "stats" of type {@link us.kbase.dashboardservice.RunStats RunStats}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public Tuple2<ListAllNarrativesResult, RunStats> listAllNarratives(ListAllNarrativesParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+    public Tuple3<ListAllNarrativesResult, Error, RunStats> listAllNarratives(ListAllNarrativesParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
-        TypeReference<Tuple2<ListAllNarrativesResult, RunStats>> retType = new TypeReference<Tuple2<ListAllNarrativesResult, RunStats>>() {};
-        Tuple2<ListAllNarrativesResult, RunStats> res = caller.jsonrpcCall("DashboardService.list_all_narratives", args, retType, true, false, jsonRpcContext, this.serviceVersion);
+        TypeReference<Tuple3<ListAllNarrativesResult, Error, RunStats>> retType = new TypeReference<Tuple3<ListAllNarrativesResult, Error, RunStats>>() {};
+        Tuple3<ListAllNarrativesResult, Error, RunStats> res = caller.jsonrpcCall("DashboardService.list_all_narratives", args, retType, true, false, jsonRpcContext, this.serviceVersion);
+        return res;
+    }
+
+    /**
+     * <p>Original spec-file function name: create_narrative</p>
+     * <pre>
+     * </pre>
+     * @param   param   instance of type {@link us.kbase.dashboardservice.CreateNarrativeParam CreateNarrativeParam}
+     * @return   multiple set: (1) parameter "result" of type {@link us.kbase.dashboardservice.CreateNarrativeResult CreateNarrativeResult}, (2) parameter "error" of type {@link us.kbase.dashboardservice.Error Error}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public Tuple2<CreateNarrativeResult, Error> createNarrative(CreateNarrativeParam param, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(param);
+        TypeReference<Tuple2<CreateNarrativeResult, Error>> retType = new TypeReference<Tuple2<CreateNarrativeResult, Error>>() {};
+        Tuple2<CreateNarrativeResult, Error> res = caller.jsonrpcCall("DashboardService.create_narrative", args, retType, true, true, jsonRpcContext, this.serviceVersion);
         return res;
     }
 
@@ -185,14 +203,16 @@ public class DashboardServiceClient {
      * <pre>
      * </pre>
      * @param   params   instance of type {@link us.kbase.dashboardservice.DeleteNarrativeParams DeleteNarrativeParams}
+     * @return   parameter "error" of type {@link us.kbase.dashboardservice.Error Error}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public void deleteNarrative(DeleteNarrativeParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+    public Error deleteNarrative(DeleteNarrativeParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
-        TypeReference<Object> retType = new TypeReference<Object>() {};
-        caller.jsonrpcCall("DashboardService.delete_narrative", args, retType, false, true, jsonRpcContext, this.serviceVersion);
+        TypeReference<List<Error>> retType = new TypeReference<List<Error>>() {};
+        List<Error> res = caller.jsonrpcCall("DashboardService.delete_narrative", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
     }
 
     /**
@@ -200,14 +220,16 @@ public class DashboardServiceClient {
      * <pre>
      * </pre>
      * @param   params   instance of type {@link us.kbase.dashboardservice.ShareNarrativeParams ShareNarrativeParams}
+     * @return   parameter "error" of type {@link us.kbase.dashboardservice.Error Error}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public void shareNarrative(ShareNarrativeParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+    public Error shareNarrative(ShareNarrativeParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
-        TypeReference<Object> retType = new TypeReference<Object>() {};
-        caller.jsonrpcCall("DashboardService.share_narrative", args, retType, false, true, jsonRpcContext, this.serviceVersion);
+        TypeReference<List<Error>> retType = new TypeReference<List<Error>>() {};
+        List<Error> res = caller.jsonrpcCall("DashboardService.share_narrative", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
     }
 
     /**
@@ -215,14 +237,16 @@ public class DashboardServiceClient {
      * <pre>
      * </pre>
      * @param   params   instance of type {@link us.kbase.dashboardservice.UnshareNarrativeParams UnshareNarrativeParams}
+     * @return   parameter "error" of type {@link us.kbase.dashboardservice.Error Error}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public void unshareNarrative(UnshareNarrativeParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+    public Error unshareNarrative(UnshareNarrativeParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
-        TypeReference<Object> retType = new TypeReference<Object>() {};
-        caller.jsonrpcCall("DashboardService.unshare_narrative", args, retType, false, true, jsonRpcContext, this.serviceVersion);
+        TypeReference<List<Error>> retType = new TypeReference<List<Error>>() {};
+        List<Error> res = caller.jsonrpcCall("DashboardService.unshare_narrative", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
     }
 
     /**
@@ -230,14 +254,16 @@ public class DashboardServiceClient {
      * <pre>
      * </pre>
      * @param   params   instance of type {@link us.kbase.dashboardservice.ShareNarrativeGlobalParams ShareNarrativeGlobalParams}
+     * @return   parameter "error" of type {@link us.kbase.dashboardservice.Error Error}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public void shareNarrativeGlobal(ShareNarrativeGlobalParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+    public Error shareNarrativeGlobal(ShareNarrativeGlobalParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
-        TypeReference<Object> retType = new TypeReference<Object>() {};
-        caller.jsonrpcCall("DashboardService.share_narrative_global", args, retType, false, true, jsonRpcContext, this.serviceVersion);
+        TypeReference<List<Error>> retType = new TypeReference<List<Error>>() {};
+        List<Error> res = caller.jsonrpcCall("DashboardService.share_narrative_global", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
     }
 
     /**
@@ -245,14 +271,16 @@ public class DashboardServiceClient {
      * <pre>
      * </pre>
      * @param   params   instance of type {@link us.kbase.dashboardservice.UnshareNarrativeGlobalParams UnshareNarrativeGlobalParams}
+     * @return   parameter "error" of type {@link us.kbase.dashboardservice.Error Error}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public void unshareNarrativeGlobal(UnshareNarrativeGlobalParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+    public Error unshareNarrativeGlobal(UnshareNarrativeGlobalParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
-        TypeReference<Object> retType = new TypeReference<Object>() {};
-        caller.jsonrpcCall("DashboardService.unshare_narrative_global", args, retType, false, true, jsonRpcContext, this.serviceVersion);
+        TypeReference<List<Error>> retType = new TypeReference<List<Error>>() {};
+        List<Error> res = caller.jsonrpcCall("DashboardService.unshare_narrative_global", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
     }
 
     public Map<String, Object> status(RpcContext... jsonRpcContext) throws IOException, JsonClientException {

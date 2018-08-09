@@ -1,71 +1,87 @@
 import json
-import bsddb3
+import apsw
+
 from DashboardService.GenericClient import GenericClient
-
-
-def get_path(from_dict, path):
-    current_dict = from_dict
-    for el in path:
-        if not isinstance(current_dict, dict):
-            return None
-        if el not in current_dict:
-            return None
-        current_dict = current_dict[el]
-    return current_dict
-
+from DashboardService.Errors import ServiceError
 
 class AppCache:
-    def __init__(self, path=None, url=None):
+    def __init__(self, path=None, narrative_method_store_url=None):
         if path is None:
             raise ValueError('The "path" argument is required')
         if not isinstance(path, basestring):
             raise ValueError('The "path" argument must be a string')
         self.path = path
 
-        if url is None:
-            raise ValueError('The "url" argument is required')
-        self.url = url
-        self.db = bsddb3.db.DB()
-
-    def start(self):
-        self.db.open(self.path, None, bsddb3.db.DB_HASH, bsddb3.db.DB_RDONLY)
-
-    def stop(self):
-        self.db.close()
+        if narrative_method_store_url is None:
+            raise ValueError('The "narrative_method_store_url" argument is required')
+        if not isinstance(narrative_method_store_url, basestring):
+            raise ValueError('The "narrative_method_store_url" argument must be a string')
+        self.narrative_method_store_url = narrative_method_store_url
+        self.conn = apsw.Connection(self.path)
 
     def initialize(self):
-        self.db.open(self.path, None, bsddb3.db.DB_HASH, bsddb3.db.DB_CREATE)
-        self.populate_cache()
-        self.db.close()
-
+        self.create_schema()
+ 
+    def create_schema(self):
+        schema = '''
+        drop table if exists cache;
+        create table cache (
+            key text not null primary key,
+            tag text not null,
+            value text
+        )    
+        '''
+        with self.conn:
+            self.conn.cursor().execute(schema)
+        
     def load_for_tag(self, tag):
         rpc = GenericClient(
             module='NarrativeMethodStore',
-            url=self.url,
+            url=self.narrative_method_store_url,
             token=None
         )
-        result, error = rpc.call_func('list_methods', [{
+        [result] = rpc.call_func('list_methods', [{
             'tag': tag
         }])
-        if error:
-            raise ValueError(error)
 
-        for app in result[0]:
-            key = app['id']
-            if not self.db.exists(key.encode('utf8')):
-                self.db.put(key.encode('utf8'), json.dumps(app).encode('utf8'))
+        to_add = []
+        for app in result:
+            to_add.append((app['id'], app))
+        self.add_many(to_add, tag)
 
-    def populate_cache(self):
-        self.load_for_tag('release')
-        self.load_for_tag('beta')
+    def load_all(self):
+        # Note that these are applied as "insert or replace", so 
+        # order is important.
         self.load_for_tag('dev')
+        self.load_for_tag('beta')
+        self.load_for_tag('release')
 
-    # public interface
+    def add_many(self, to_add, tag):
+        sql = '''
+        insert or replace into cache
+        (key, tag, value)
+        values
+        (?, ?, ?)
+        '''
+        with self.conn:
+            for key, value in to_add:
+                params = (key, tag, json.dumps(value))
+                self.conn.cursor().execute(sql, params)
+
 
     def get(self, app_id):
-        value = self.db.get(app_id.encode('utf8'))
+        sql = '''
+        select key, tag, value
+        from cache
+        where key = ?
+        '''
+        params = (app_id,)
+        with self.conn:
+            record = self.conn.cursor().execute(sql, params).fetchone()
 
-        if value is not None:
-            return (None, json.loads(value.decode('utf8')))
-        else:
-            return (None, None)
+        if not record:
+            return None, None
+
+        (_key, tag, value) = record
+
+        return tag, json.loads(value)
