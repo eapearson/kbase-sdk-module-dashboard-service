@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# . /kb/deployment/user-env.sh
-
 python ./scripts/prepare_deploy_cfg.py ./deploy.cfg ./work/config.properties
 
 if [ -f ./work/token ] ; then
@@ -22,6 +20,7 @@ elif [ "${1}" = "bash" ] ; then
 elif [ "${1}" = "report" ] ; then
   # export KB_SDK_COMPILE_REPORT_FILE=./work/compile_report.json
   # make compile
+  echo "Report is already present in ./work/compile_report.json"
 else
   echo Unknown
 fi
