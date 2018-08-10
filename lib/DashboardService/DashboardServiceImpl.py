@@ -151,7 +151,6 @@ class DashboardService:
         stats = {
             'timings': timings
         }
-        print('STATS', stats)
         return [result, None, stats]
         #END list_all_narratives
 
