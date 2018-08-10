@@ -3,7 +3,7 @@ then
     echo "In Dev mode, not generating report (DEV=${DEV})"
 else
     echo "Not in Dev mode, will generate compilation report (DEV=${DEV})"
-    export KB_SDK_COMPILE_REPORT_FILE=./work/compile_report.json
+    export KB_SDK_COMPILE_REPORT_FILE=./compile_report.json
 fi
 
 export SERVICE_CAPS=$1
