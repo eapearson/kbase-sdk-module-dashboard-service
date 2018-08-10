@@ -21,15 +21,7 @@ install: compile build build-startup-script build-executable-script build-test-s
 all: build build-startup-script build-executable-script build-test-script
 
 compile:
-	kb-sdk compile $(SPEC_FILE) \
-		--out $(LIB_DIR) \
-		--plclname $(SERVICE_CAPS)::$(SERVICE_CAPS)Client \
-		--jsclname javascript/Client \
-		--pyclname $(SERVICE_CAPS).$(SERVICE_CAPS)Client \
-		--javasrc src \
-		--java \
-		--pysrvname $(SERVICE_CAPS).$(SERVICE_CAPS)Server \
-		--pyimplname $(SERVICE_CAPS).$(SERVICE_CAPS)Impl;
+	@bash scripts/compile.bash $(SERVICE_CAPS) $(SPEC_FILE) $(LIB_DIR)
 
 build: 
 	chmod +x $(SCRIPTS_DIR)/entrypoint.sh
