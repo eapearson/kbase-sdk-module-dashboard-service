@@ -21,6 +21,7 @@ class AppCache:
 
     def initialize(self):
         self.create_schema()
+        self.load_all()
  
     def create_schema(self):
         schema = '''

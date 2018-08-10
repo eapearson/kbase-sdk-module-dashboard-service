@@ -38,6 +38,7 @@ class UserProfileCache:
 
     def initialize(self):
         self.create_schema()
+        self.sync()
 
     def create_schema(self):
         alerts_schema = '''
@@ -68,7 +69,11 @@ class UserProfileCache:
     #     with self.conn:
     #         for profile in profiles:
     #             key = get_path(profile, ['user', 'username'])
-    #             params = (key, json.dumps(profile))
+    #             value = json.dumps(profile)
+    #             hasher = hashlib.md5()
+    #             hasher.update(value)
+    #             hash = hasher.digest()
+    #             params = (key, value, len(value), buffer(hash))
     #             self.conn.cursor().execute(sql, params)
     #     added = time.time() - fetched_at
 
@@ -156,10 +161,6 @@ class UserProfileCache:
         [users] = rpc.call_func('filter_users', [{
             'filter': ''
         }])
-
-        # Annoying, but we need to turn around and get the full profiles now.
-
-        # TODO: batches of 1000.
 
         usernames = [user['username'] for user in users]
 

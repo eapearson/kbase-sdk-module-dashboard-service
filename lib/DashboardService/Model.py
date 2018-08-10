@@ -232,7 +232,6 @@ class Model(object):
             for username, _perm in perms:
                 users.add(username)
 
-        # print('USERS?', list(users))
 
         # We end up with a map of username -> profile
         # Transform profiles into map of user to record.
@@ -245,6 +244,7 @@ class Model(object):
         # profiles_map = dict()
         # for (username, profile) in itertools.izip(users, profiles):
         #     profiles_map[username] = profile
+
 
         now = time.time()
         stats.append(['user_profiles', now - then])
@@ -303,7 +303,7 @@ class Model(object):
         # TODO: permissions, user profiles for permissions, apps
 
         print('assembling...')
-        # Now weave together the sources into a single narratiive
+        # Now weave together the sources into a single narrative
         narratives = []
         for (ws,
              obj,

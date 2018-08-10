@@ -242,6 +242,24 @@ class DashboardService:
         # ctx is the context object
         # return variables are: error
         #BEGIN delete_narrative
+        params, err = Validation.validate_delete_narrative(ctx, params)
+        if err:
+            return None, err
+
+        # if 'obji' not in params:
+        #     raise ValueError('"wsi" field, identifying the narrative workspace, required')
+
+        model = Model(
+            config=self.call_config,
+            token=ctx['token']
+        )
+
+        obji = ObjectIdentity(workspace_id=params['obji'].get('workspace_id'),
+                              object_id=params['obji'].get('object_id'))
+
+        model.delete_narrative(obji=obji)
+
+        return [None]
         #END delete_narrative
 
         # At some point might do deeper type checking...

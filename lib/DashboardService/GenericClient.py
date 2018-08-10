@@ -45,8 +45,8 @@ class GenericClient(object):
                 # Better be a JSON RPC 2.0 Error structure
                 raise ServiceError(**error)
 
-            if not isinstance(result, list):
-                raise ValueError('Expected result to be list')
+            if not (isinstance(result, list) or result is None):
+                raise ValueError('Expected result to be list, is ' + type(result).__name__)
                 
             return result
 
