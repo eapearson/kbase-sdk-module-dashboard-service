@@ -9,13 +9,8 @@ RUN apk upgrade --update-cache --available \
         make=4.2.1-r2 \
         bash=4.4.19-r1 \
         python2=2.7.15-r0 \
-        py2-pip=10.0.1-r0 \
         openjdk8=8.171.11-r0 \
         apache-ant=1.10.4-r0
-
-# # install python dependencies
-# RUN pip install --upgrade pip \
-#     && pip install 'jinja2==2.10'
 
 RUN mkdir -p /kb \
     && git clone --depth=1 https://github.com/kbase/kb_sdk /kb/kb_sdk \
@@ -63,9 +58,15 @@ RUN pip install --upgrade pip \
 # and is hopelessly out of date.
 RUN pip install https://github.com/rogerbinns/apsw/releases/download/3.24.0-r1/apsw-3.24.0-r1.zip \
 --global-option=fetch --global-option=--version --global-option=3.24.0 --global-option=--all \
---global-option=build --global-option=--enable-all-extensions
+--global-option=build --global-option=--enable-all-extensions 
 
 COPY --from=builder /kb/module /kb/module
+
+RUN addgroup -S kbmod && \
+    adduser -S -G kbmod kbmod && \
+	chown -R kbmod:kbmod /kb
+
+USER kbmod    
 
 WORKDIR /kb/module
 
