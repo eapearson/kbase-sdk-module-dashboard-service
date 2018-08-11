@@ -62,11 +62,11 @@ RUN pip install https://github.com/rogerbinns/apsw/releases/download/3.24.0-r1/a
 
 COPY --from=builder /kb/module /kb/module
 
-RUN addgroup -S kbmod && \
-    adduser -S -G kbmod kbmod && \
-	chown -R kbmod:kbmod /kb
+# RUN addgroup -S kbmod && \
+#     adduser -S -G kbmod kbmod && \
+# 	chown -R kbmod:kbmod /kb
 
-USER kbmod    
+# USER kbmod    
 
 WORKDIR /kb/module
 
