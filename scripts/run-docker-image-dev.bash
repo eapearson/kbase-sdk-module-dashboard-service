@@ -14,7 +14,6 @@ docker run -i -t \
   --network=kbase-dev \
   --name=DashboardService  \
   --dns=8.8.8.8 \
-  -p 5000:5000 \
   -e "KBASE_ENDPOINT=https://ci.kbase.us/services" \
   -e "AUTH_SERVICE_URL=https://ci.kbase.us/services/auth/api/legacy/KBase/Sessions/Login" \
   -e "AUTH_SERVICE_URL_ALLOW_INSECURE=true" \

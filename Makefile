@@ -40,7 +40,7 @@ build-startup-script:
 	echo 'script_dir=$$(dirname "$$(readlink -f "$$0")")' >> $(SCRIPTS_DIR)/$(STARTUP_SCRIPT_NAME)
 	echo 'export KB_DEPLOYMENT_CONFIG=$$script_dir/../deploy.cfg' >> $(SCRIPTS_DIR)/$(STARTUP_SCRIPT_NAME)
 	echo 'export PYTHONPATH=$$script_dir/../$(LIB_DIR):$$PATH:$$PYTHONPATH' >> $(SCRIPTS_DIR)/$(STARTUP_SCRIPT_NAME)
-	echo 'uwsgi --master --processes 5 --threads 5 --http :5000 --wsgi-file $$script_dir/../$(LIB_DIR)/$(SERVICE_CAPS)/$(SERVICE_CAPS)Server.py' >> $(SCRIPTS_DIR)/$(STARTUP_SCRIPT_NAME)
+	@echo 'uwsgi --master --processes 5 --threads 5 --http :5000 --uid $$(id -u kbmodule) --gid $$(id -g kbmodule)  --wsgi-file $$script_dir/../$(LIB_DIR)/$(SERVICE_CAPS)/$(SERVICE_CAPS)Server.py' >> $(SCRIPTS_DIR)/$(STARTUP_SCRIPT_NAME)
 	chmod +x $(SCRIPTS_DIR)/$(STARTUP_SCRIPT_NAME)
 
 build-test-script:
@@ -61,15 +61,6 @@ test:
 clean:
 	rm -rfv $(LBIN_DIR)
 
-install-clients:
-	kb-sdk install -c https://raw.githubusercontent.com/kbase/workspace_deluxe/master/workspace.spec
-	kb-sdk install -c https://raw.githubusercontent.com/kbase/narrative_method_store/develop/NarrativeMethodStore.spec
-	kb-sdk install -d https://raw.githubusercontent.com/kbaseapps/DataPaletteService/master/DataPaletteService.spec
-
-copy-source-for-docker:
-	@echo "Copying files to docker context contents"
-	cd $(DIR)/deployment; bash ./tools/prepare-docker.sh
-
 build-docker-image:
 	@echo "Building docker image"
 	bash scripts/build_docker.sh
@@ -78,15 +69,6 @@ sdk-test:
 	cd $(DIR)/deployment; bash ./tools/prepare-docker.sh
 	cd $(DIR)
 	kb-sdk test
-
-# dev-image:
-# 	echo 'Making dev image...'
-# 	# cd $(DIR)/deployment; bash ./tools/prepare-docker.sh
-# 	cd $(DIR)/deployment; bash ./tools/build-docker.sh
-
-# run-dev-image:
-# 	bash $(DIR)/deployment/tools/run-bash.sh
-
 
 docker-image-dev:
 	@echo "Creating local image for development or testing"

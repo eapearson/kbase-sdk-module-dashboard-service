@@ -4,13 +4,13 @@ MAINTAINER KBase Developer
 # update system and system dependencies
 RUN apk upgrade --update-cache --available \
     && apk add --update --no-cache \
-        linux-headers=4.4.6-r2 \
-        git=2.18.0-r0 \
-        make=4.2.1-r2 \
+        apache-ant=1.10.4-r0 \
         bash=4.4.19-r1 \
-        python2=2.7.15-r0 \
+        git=2.18.0-r0 \
+        linux-headers=4.4.6-r2 \
+        make=4.2.1-r2 \
         openjdk8=8.171.11-r0 \
-        apache-ant=1.10.4-r0
+        python2=2.7.15-r0
 
 RUN mkdir -p /kb \
     && git clone --depth=1 https://github.com/kbase/kb_sdk /kb/kb_sdk \
@@ -30,17 +30,17 @@ MAINTAINER KBase Developer
 # update system and system dependencies
 RUN apk upgrade --update-cache --available \
     && apk add --update --no-cache \
-        linux-headers=4.4.6-r2 \
-        sqlite=3.24.0-r0 \
-        git=2.18.0-r0 \
-        make=4.2.1-r2 \
         bash=4.4.19-r1 \
+        g++=6.4.0-r8 \
+        git=2.18.0-r0 \
         libffi-dev=3.2.1-r4 \
+        linux-headers=4.4.6-r2 \
+        make=4.2.1-r2 \
         openssl-dev=1.0.2o-r2 \
+        py2-pip=10.0.1-r0 \
         python2=2.7.15-r0 \
         python2-dev=2.7.15-r0 \
-        py2-pip=10.0.1-r0 \
-        g++=6.4.0-r8
+        sqlite=3.24.0-r0
 
 # install python dependencies
 RUN pip install --upgrade pip \
@@ -48,7 +48,7 @@ RUN pip install --upgrade pip \
     && pip install 'uwsgi==2.0.17.1' \
     && pip install 'jsonrpcbase==0.2.0' \
     && pip install 'requests==2.19.1' \
-    && pip install 'python-dateutil==2.7.2' \
+    && pip install 'python-dateutil==2.7.3' \
     && pip install 'cffi==1.11.5' \
     && pip install 'ndg-httpsclient==0.5.1' \
     && pip install 'pyasn1==0.4.4'
@@ -57,16 +57,17 @@ RUN pip install --upgrade pip \
 # also beware: the apsw distributed through pip repos is NOT the official version
 # and is hopelessly out of date.
 RUN pip install https://github.com/rogerbinns/apsw/releases/download/3.24.0-r1/apsw-3.24.0-r1.zip \
---global-option=fetch --global-option=--version --global-option=3.24.0 --global-option=--all \
---global-option=build --global-option=--enable-all-extensions 
+    --global-option=fetch \
+    --global-option=--version \
+    --global-option=3.24.0 \
+    --global-option=--all \
+    --global-option=build \
+    --global-option=--enable-all-extensions 
 
 COPY --from=builder /kb/module /kb/module
 
-# RUN addgroup -S kbmod && \
-#     adduser -S -G kbmod kbmod && \
-# 	chown -R kbmod:kbmod /kb
-
-# USER kbmod    
+RUN addgroup --system kbmodule && \
+    adduser --system --ingroup kbmodule kbmodule
 
 WORKDIR /kb/module
 
