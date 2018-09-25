@@ -384,7 +384,7 @@ class DashboardService:
 
         wsi = WorkspaceIdentity(id=params['wsi'].get('id'))
 
-        model = NarrativeModel(
+        model = Model(
             config=self.call_config,
             token=ctx['token']
         )
