@@ -59,7 +59,7 @@ public class Narrative {
     @JsonProperty("cellTypes")
     private List<UObject> cellTypes;
     @JsonProperty("apps")
-    private List<UObject> apps;
+    private List<NarrativeApp> apps;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("objectId")
@@ -228,16 +228,16 @@ public class Narrative {
     }
 
     @JsonProperty("apps")
-    public List<UObject> getApps() {
+    public List<NarrativeApp> getApps() {
         return apps;
     }
 
     @JsonProperty("apps")
-    public void setApps(List<UObject> apps) {
+    public void setApps(List<NarrativeApp> apps) {
         this.apps = apps;
     }
 
-    public Narrative withApps(List<UObject> apps) {
+    public Narrative withApps(List<NarrativeApp> apps) {
         this.apps = apps;
         return this;
     }

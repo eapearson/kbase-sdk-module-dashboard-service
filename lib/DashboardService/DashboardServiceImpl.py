@@ -28,9 +28,9 @@ class DashboardService:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.0.8"
+    VERSION = "0.1.0"
     GIT_URL = "ssh://git@github.com/eapearson/kbase-sdk-module-dashboard-service"
-    GIT_COMMIT_HASH = "0f3859cb769fc97a2821ecce947bf964f6a4811a"
+    GIT_COMMIT_HASH = "3a463c90289c412485f65bb806a58a0bc817da0d"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -55,7 +55,7 @@ class DashboardService:
         apsw.connection_hooks.append(setwal)
 
 
-        # TODO: move into MOdel?
+        # TODO: move into Model?
 
         user_profile_cache = UserProfileCache(
             path=config['caches']['userprofile']['path'],
@@ -105,20 +105,27 @@ class DashboardService:
            "boolean" (@range [0,1]), parameter "title" of String, parameter
            "savedTime" of Long, parameter "savedBy" of String, parameter
            "permissions" of list of type "UserPermission" -> structure:
-           parameter "username" of String, parameter "permission" of type
-           "permission" (Represents the permissions a user or users have to a
-           workspace: 'a' - administrator. All operations allowed. 'w' -
+           parameter "username" of type "Username", parameter "permission" of
+           type "permission" (Represents the permissions a user or users have
+           to a workspace: 'a' - administrator. All operations allowed. 'w' -
            read/write. 'r' - read. 'n' - no permissions.), parameter
            "cellTypes" of list of type "NarrativeCellStat" (typedef
            UnspecifiedObject NarrativePermission;) -> unspecified object,
-           parameter "apps" of list of type "NarrativeApp" -> unspecified
-           object, parameter "profiles" of list of type "UserProfile" (LIST
-           ALL NARRATIVES) -> unspecified object, (2) parameter "error" of
-           type "Error" -> structure: parameter "message" of String,
-           parameter "type" of String, parameter "code" of String, parameter
-           "info" of unspecified object, (3) parameter "stats" of type
-           "RunStats" -> structure: parameter "timings" of list of tuple of
-           size 2: String, Long
+           parameter "apps" of list of type "NarrativeApp" -> structure:
+           parameter "id" of String, parameter "count" of Long, parameter
+           "profiles" of mapping from type "Username" to type "UserProfile"
+           (LIST ALL NARRATIVES) -> unspecified object, parameter "apps" of
+           mapping from type "AppID" (Just the subset of info that the front
+           end will use) to type "App" -> structure: parameter "id" of type
+           "AppID" (Just the subset of info that the front end will use),
+           parameter "notFound" of type "boolean" (@range [0,1]), parameter
+           "title" of String, parameter "subtitle" of String, parameter
+           "iconURL" of String, (2) parameter "error" of type "Error" ->
+           structure: parameter "message" of String, parameter "type" of
+           String, parameter "code" of String, parameter "info" of
+           unspecified object, (3) parameter "stats" of type "RunStats" ->
+           structure: parameter "timings" of list of tuple of size 2: String,
+           Long
         """
         # ctx is the context object
         # return variables are: result, error, stats
@@ -154,18 +161,18 @@ class DashboardService:
         return [result, None, stats]
         #END list_all_narratives
 
-        # At some point might do deeper type checking...
-        if not isinstance(result, dict):
-            raise ValueError('Method list_all_narratives return value ' +
-                             'result is not type dict as required.')
-        if not isinstance(error, dict):
-            raise ValueError('Method list_all_narratives return value ' +
-                             'error is not type dict as required.')
-        if not isinstance(stats, dict):
-            raise ValueError('Method list_all_narratives return value ' +
-                             'stats is not type dict as required.')
-        # return the results
-        return [result, error, stats]
+        # # At some point might do deeper type checking...
+        # if not isinstance(result, dict):
+        #     raise ValueError('Method list_all_narratives return value ' +
+        #                      'result is not type dict as required.')
+        # if not isinstance(error, dict):
+        #     raise ValueError('Method list_all_narratives return value ' +
+        #                      'error is not type dict as required.')
+        # if not isinstance(stats, dict):
+        #     raise ValueError('Method list_all_narratives return value ' +
+        #                      'stats is not type dict as required.')
+        # # return the results
+        # return [result, error, stats]
 
     def create_narrative(self, ctx, param):
         """
@@ -181,17 +188,18 @@ class DashboardService:
            "isNarratorial" of type "boolean" (@range [0,1]), parameter
            "title" of String, parameter "savedTime" of Long, parameter
            "savedBy" of String, parameter "permissions" of list of type
-           "UserPermission" -> structure: parameter "username" of String,
-           parameter "permission" of type "permission" (Represents the
-           permissions a user or users have to a workspace: 'a' -
-           administrator. All operations allowed. 'w' - read/write. 'r' -
-           read. 'n' - no permissions.), parameter "cellTypes" of list of
+           "UserPermission" -> structure: parameter "username" of type
+           "Username", parameter "permission" of type "permission"
+           (Represents the permissions a user or users have to a workspace:
+           'a' - administrator. All operations allowed. 'w' - read/write. 'r'
+           - read. 'n' - no permissions.), parameter "cellTypes" of list of
            type "NarrativeCellStat" (typedef UnspecifiedObject
            NarrativePermission;) -> unspecified object, parameter "apps" of
-           list of type "NarrativeApp" -> unspecified object, (2) parameter
-           "error" of type "Error" -> structure: parameter "message" of
-           String, parameter "type" of String, parameter "code" of String,
-           parameter "info" of unspecified object
+           list of type "NarrativeApp" -> structure: parameter "id" of
+           String, parameter "count" of Long, (2) parameter "error" of type
+           "Error" -> structure: parameter "message" of String, parameter
+           "type" of String, parameter "code" of String, parameter "info" of
+           unspecified object
         """
         # ctx is the context object
         # return variables are: result, error
@@ -216,14 +224,14 @@ class DashboardService:
         #END create_narrative
 
         # At some point might do deeper type checking...
-        if not isinstance(result, dict):
-            raise ValueError('Method create_narrative return value ' +
-                             'result is not type dict as required.')
-        if not isinstance(error, dict):
-            raise ValueError('Method create_narrative return value ' +
-                             'error is not type dict as required.')
-        # return the results
-        return [result, error]
+        # if not isinstance(result, dict):
+        #     raise ValueError('Method create_narrative return value ' +
+        #                      'result is not type dict as required.')
+        # if not isinstance(error, dict):
+        #     raise ValueError('Method create_narrative return value ' +
+        #                      'error is not type dict as required.')
+        # # return the results
+        # return [result, error]
 
     def delete_narrative(self, ctx, params):
         """
@@ -261,12 +269,12 @@ class DashboardService:
         return [None]
         #END delete_narrative
 
-        # At some point might do deeper type checking...
-        if not isinstance(error, dict):
-            raise ValueError('Method delete_narrative return value ' +
-                             'error is not type dict as required.')
-        # return the results
-        return [error]
+        # # At some point might do deeper type checking...
+        # if not isinstance(error, dict):
+        #     raise ValueError('Method delete_narrative return value ' +
+        #                      'error is not type dict as required.')
+        # # return the results
+        # return [error]
 
     def share_narrative(self, ctx, params):
         """
@@ -276,7 +284,7 @@ class DashboardService:
            "ws_name", parameter "id" of type "ws_id" (from workspace_deluxe
            Note too that naming conventions for parameters using these types
            (may) also use the workspace_deluxe conventions. workspace),
-           parameter "users" of list of type "username", parameter
+           parameter "users" of list of type "Username", parameter
            "permission" of type "permission" (Represents the permissions a
            user or users have to a workspace: 'a' - administrator. All
            operations allowed. 'w' - read/write. 'r' - read. 'n' - no
@@ -304,12 +312,12 @@ class DashboardService:
         return [None]
         #END share_narrative
 
-        # At some point might do deeper type checking...
-        if not isinstance(error, dict):
-            raise ValueError('Method share_narrative return value ' +
-                             'error is not type dict as required.')
-        # return the results
-        return [error]
+        # # At some point might do deeper type checking...
+        # if not isinstance(error, dict):
+        #     raise ValueError('Method share_narrative return value ' +
+        #                      'error is not type dict as required.')
+        # # return the results
+        # return [error]
 
     def unshare_narrative(self, ctx, params):
         """
@@ -319,7 +327,7 @@ class DashboardService:
            of type "ws_id" (from workspace_deluxe Note too that naming
            conventions for parameters using these types (may) also use the
            workspace_deluxe conventions. workspace), parameter "users" of
-           list of type "username"
+           list of type "Username"
         :returns: instance of type "Error" -> structure: parameter "message"
            of String, parameter "type" of String, parameter "code" of String,
            parameter "info" of unspecified object
@@ -348,12 +356,12 @@ class DashboardService:
         return [None]
         #END unshare_narrative
 
-        # At some point might do deeper type checking...
-        if not isinstance(error, dict):
-            raise ValueError('Method unshare_narrative return value ' +
-                             'error is not type dict as required.')
-        # return the results
-        return [error]
+        # # At some point might do deeper type checking...
+        # if not isinstance(error, dict):
+        #     raise ValueError('Method unshare_narrative return value ' +
+        #                      'error is not type dict as required.')
+        # # return the results
+        # return [error]
 
     def share_narrative_global(self, ctx, params):
         """
@@ -370,14 +378,26 @@ class DashboardService:
         # ctx is the context object
         # return variables are: error
         #BEGIN share_narrative_global
+        if 'wsi' not in params:
+            raise ValueError('"wsi" field, identifying the narrative workspace, ' +
+                             'is required but was not provided')
+
+        wsi = WorkspaceIdentity(id=params['wsi'].get('id'))
+
+        model = NarrativeModel(
+            config=self.call_config,
+            token=ctx['token']
+        )
+
+        model.share_narrative_global(wsi=wsi)
         #END share_narrative_global
 
-        # At some point might do deeper type checking...
-        if not isinstance(error, dict):
-            raise ValueError('Method share_narrative_global return value ' +
-                             'error is not type dict as required.')
-        # return the results
-        return [error]
+        # # At some point might do deeper type checking...
+        # if not isinstance(error, dict):
+        #     raise ValueError('Method share_narrative_global return value ' +
+        #                      'error is not type dict as required.')
+        # # return the results
+        # return [error]
 
     def unshare_narrative_global(self, ctx, params):
         """
@@ -411,11 +431,11 @@ class DashboardService:
         #END unshare_narrative_global
 
         # At some point might do deeper type checking...
-        if not isinstance(error, dict):
-            raise ValueError('Method unshare_narrative_global return value ' +
-                             'error is not type dict as required.')
-        # return the results
-        return [error]
+        # if not isinstance(error, dict):
+        #     raise ValueError('Method unshare_narrative_global return value ' +
+        #                      'error is not type dict as required.')
+        # # return the results
+        # return [error]
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",

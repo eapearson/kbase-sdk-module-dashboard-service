@@ -32,11 +32,12 @@ class ObjectCache(object):
         create table cache (
             workspace_id int not null,
             object_id int not null,
-            timestamp int not null,
+            object_modified_at int not null,
+            workspace_saved_at int not null,
 
             value text,
              
-            primary key (workspace_id, object_id, timestamp)
+            primary key (workspace_id, object_id, object_modified_at)
         );
         '''
         with self.conn:
@@ -44,13 +45,13 @@ class ObjectCache(object):
         
     def add_items(self, items):
         sql = '''
-        insert or replace into cache (workspace_id, object_id, timestamp, value)
-        values (?, ?, ?, ?)
+        insert or replace into cache (workspace_id, object_id, object_modified_at, workspace_saved_at, value)
+        values (?, ?, ?, ?, ?)
         '''
 
         with self.conn:
-            for wsid, objid, ts, value in items:
-                self.conn.cursor().execute(sql, (wsid, objid, ts, value))
+            for wsid, objid, objts, wsts, value in items:
+                self.conn.cursor().execute(sql, (wsid, objid, objts, wsts, value))
 
     def fetch_items(self, keys):
         rpc = GenericClient(
@@ -115,10 +116,15 @@ class ObjectCache(object):
     def get(self, key_specs):
         items_to_return = []
         items_to_fetch = []
-        for wsid, objid, timestamp, value, key_wsid, key_objid, key_timestamp in self.get_items(key_specs):
+        workspace_modified_at = {}
+        for wsid, objid, object_saved_at, workspace_saved_at, value, key_wsid, key_objid, current_workspace_saved_at in self.get_items(key_specs):
+            workspace_modified_at[key_wsid] = current_workspace_saved_at
             if wsid is None:
+                # narrative object for this workspace has not been cached yet.
                 items_to_fetch.append([key_wsid, key_objid])
-            elif timestamp < (key_timestamp or 0):
+            elif current_workspace_saved_at > workspace_saved_at:
+                # the workspace has been modified since the narrative object was cached.
+                print('too old %s, %s, %s, %s, %s, %s, %s' % (wsid, objid, object_saved_at, workspace_saved_at, current_workspace_saved_at, key_wsid, key_objid))
                 items_to_fetch.append([key_wsid, key_objid]) 
             else:
                 items_to_return.append(json.loads(value))
@@ -135,6 +141,7 @@ class ObjectCache(object):
                     object_info['wsid'], 
                     object_info['id'],
                     object_info['saveDateMs'],
+                    workspace_modified_at[object_info['wsid']],
                     json.dumps(object_info)
                 ])
             self.add_items(items_to_update)

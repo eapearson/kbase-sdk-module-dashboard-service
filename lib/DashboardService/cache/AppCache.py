@@ -22,7 +22,7 @@ class AppCache:
     def initialize(self):
         self.create_schema()
         self.load_all()
- 
+
     def create_schema(self):
         schema = '''
         drop table if exists cache;
@@ -83,6 +83,44 @@ class AppCache:
         if not record:
             return None, None
 
-        (_key, tag, value) = record
+        (_key, tag, value_as_string) = record
 
-        return tag, json.loads(value)
+        value = json.loads(value_as_string)
+
+        return tag, value
+
+    def get_items(self, app_ids):
+        temp_sql = '''
+        create temporary table keys (
+            key text primary key
+        );
+        '''
+
+        temp_sql2 = '''
+        insert into keys (key) values (?)
+        '''
+
+        sql = '''
+        select cache.*, keys.*
+        from temp.keys
+        left outer join cache
+          on keys.key = cache.key            
+        '''
+
+        with self.conn:
+            self.conn.cursor().execute(temp_sql)
+            for app_id in app_ids:
+                # nb trailing comma to force tuple to be, er, a tuple
+                self.conn.cursor().execute(temp_sql2, (app_id,))
+            apps = self.conn.cursor().execute(sql).fetchall()
+    
+        retval = []
+        for (key, tag, value_as_string, temp_key) in apps:
+            if value_as_string is None:
+                value_as_json = None
+            else:
+                value_as_json = json.loads(value_as_string)
+
+            retval.append((key, tag, value_as_json, temp_key))
+
+        return retval

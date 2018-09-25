@@ -58,9 +58,6 @@ module DashboardService {
         obj_ver version;
     } ObjectIdentity;
 
-    typedef string username;
-
-
 
     /* Information about an object, including user provided metadata.
 
@@ -183,10 +180,16 @@ module DashboardService {
 
     /* typedef UnspecifiedObject NarrativePermission; */
     typedef UnspecifiedObject NarrativeCellStat;
-    typedef UnspecifiedObject NarrativeApp;
 
     typedef structure {
-        string username;
+        string id;
+        int count;
+    } NarrativeApp;
+
+    typedef string Username;
+
+    typedef structure {
+        Username username;
         permission permission;
     } UserPermission;
 
@@ -218,7 +221,15 @@ module DashboardService {
 
     typedef UnspecifiedObject UserProfile;
 
- 
+    /* Just the subset of info that the front end will use */
+    typedef string AppID;
+    typedef structure {
+        AppID id;
+        boolean notFound;
+        string title;
+        string subtitle;
+        string iconURL;
+    } App;
 
     /*typedef structure {
         workspace_info workspace;
@@ -228,7 +239,8 @@ module DashboardService {
 
     typedef structure {
         list<Narrative> narratives;
-        list<UserProfile> profiles;
+        mapping<Username, UserProfile> profiles;
+        mapping<AppID, App> apps;
     } ListAllNarrativesResult;
 
     typedef structure {
@@ -275,7 +287,7 @@ module DashboardService {
 
     typedef structure {
         WorkspaceIdentity wsi;
-        list<username> users;
+        list<Username> users;
         permission permission;
     } ShareNarrativeParams;
 
@@ -284,7 +296,7 @@ module DashboardService {
 
     typedef structure {
         WorkspaceIdentity wsi;
-        list<username> users;
+        list<Username> users;
     } UnshareNarrativeParams;
 
     funcdef unshare_narrative(UnshareNarrativeParams params)

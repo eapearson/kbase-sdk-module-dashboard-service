@@ -108,29 +108,34 @@ class Model(object):
         narrative_apps = []
         narrative_cell_types = []
         query_time = 0
+        apps_to_get = {}
 
+        # pass 1: object stats and collect app ids.
         for obj_info in narrative_objects:
+            # collect summary cell info per narrative.
             cell_types = {
                 'app': 0,
                 'code': 0,
                 'markdown': 0
             }
-            apps = []
+            apps = {}
             if obj_info is not None:
                 # print('obj info...', obj_info)
                 for key in obj_info['metadata'].keys():
                     key_parts = key.split('.')
-                    if key_parts[0] == 'method' or key_parts[0] == 'app':
-                        parsed_id = ServiceUtils.parse_app_key(key_parts[1])
-                        if parsed_id is None:
-                            continue
 
-                        app = {
-                            # 'key': key_parts[1],
-                            'id': parsed_id,
-                            'count': int(obj_info['metadata'][key]),
-                            'obsolete': True
-                        }
+                    # umm...
+                    # if key_parts[0] == 'method' or key_parts[0] == 'app':
+                    #     parsed_id = ServiceUtils.parse_app_key(key_parts[1])
+                    #     if parsed_id is None:
+                    #         continue
+
+                    #     app = {
+                    #         # 'key': key_parts[1],
+                    #         'id': parsed_id,
+                    #         'count': int(obj_info['metadata'][key]),
+                    #         'obsolete': True
+                    #     }
 
                     if key_parts[0] == 'method':
                         parsed_id = ServiceUtils.parse_app_key(key_parts[1])
@@ -138,33 +143,8 @@ class Model(object):
                             continue
 
                         app_ref = parsed_id['shortRef']
-                        start = time.time()
-                        tag, app_info = self.app_cache.get(app_ref)
-                        query_time += (time.time() - start)
-
-                        # 'key': key_parts[1],
-                        app = {
-                            'id': parsed_id,
-                            'count': int(obj_info['metadata'][key]),
-                            'tag': tag
-                        }
-
-                        # print('app info??', app_ref, app_info)
-                        if app_info is None:
-                            app['notFound'] = True
-                        else:
-                            app_icon_url = None
-                            # if 'info' not in app_spec:
-                            #     raise ValueError('"info" key not found in app spec ' + app_ref)
-                            if 'icon' in app_info:
-                                app_icon_url = app_info['icon']['url']
-                            else:
-                                app_icon_url = None
-                            app['title'] = app_info['name']
-                            app['subtitle'] = app_info['subtitle']
-                            app['iconUrl'] = app_icon_url
-
-                        apps.append(app)
+                        apps_to_get[app_ref] = True
+                        apps[app_ref] = apps.get(app_ref, 0) + 1
                         cell_types['app'] += 1
 
                     elif key_parts[0] == 'ipython' or key_parts[0] == 'jupyter':
@@ -173,19 +153,150 @@ class Model(object):
                         cell_types[key_parts[1]] += int(obj_info['metadata'][key])
 
             # condense apps into just one instance per module.id
-            apps_map = dict()
-            for app in apps:
-                ref = app['id']['shortRef']
-                if ref not in apps_map:
-                    apps_map[ref] = app
-                else:
-                    apps_map[ref]['count'] += app['count']
+            # apps_map = dict()
+            # for app in apps:
+            #     ref = app['id']['shortRef']
+            #     if ref not in apps_map:
+            #         apps_map[ref] = app
+            #     else:
+            #         apps_map[ref]['count'] += app['count']
 
-            final_apps = [v for _, v in apps_map.iteritems()]
+            # final_apps = [v for _, v in apps_map.iteritems()]
 
-            narrative_apps.append(final_apps)
+            # final_apps = [v for app_id, count in apps.iteritems()]
+
+            narrative_apps.append(apps)
             narrative_cell_types.append(cell_types)
-        return narrative_apps, narrative_cell_types, query_time
+
+        # get apps
+        fetched_apps = self.app_cache.get_items(list(apps_to_get.keys()))
+
+        # make dict of fetched apps
+        apps_db = {}
+        for app_id, tag, app_info, lookup_app_id in fetched_apps:
+            app_id_parts = lookup_app_id.split('/')
+            if len(app_id_parts) == 2:
+                module = app_id_parts[0]
+                name = app_id_parts[1]
+            else:
+                module = None
+                name = app_id_parts[0]
+
+            app = {
+                'id': lookup_app_id,
+                'module': module,
+                'name': name,
+                # 'appInfo': app_info
+            }
+
+            # print('app info??', app_ref, app_info)
+            if app_id is None:
+                app['notFound'] = True
+                app['title'] = app['name']
+                app['subtitle'] = None
+                app['iconURL'] = None
+            else:
+                app['notFound'] = False
+                # the function name is not actually provided in the
+                # app info. Weird.
+                app['version'] = app_info['ver']
+                app_icon_url = None
+                if 'icon' in app_info:
+                    app_icon_url = app_info['icon']['url']
+                else:
+                    app_icon_url = None
+                app['title'] = app_info['name']
+                app['subtitle'] = app_info['subtitle']
+                app['iconURL'] = app_icon_url
+            apps_db[app_id] = app
+        
+        return narrative_apps, narrative_cell_types, apps_db, query_time
+
+    # def parse_apps(self, narrative_objects):
+    #     narrative_apps = []
+    #     narrative_cell_types = []
+    #     query_time = 0
+
+    #     for obj_info in narrative_objects:
+    #         # collect summary cell info per narrative.
+    #         cell_types = {
+    #             'app': 0,
+    #             'code': 0,
+    #             'markdown': 0
+    #         }
+    #         apps = []
+    #         if obj_info is not None:
+    #             # print('obj info...', obj_info)
+    #             for key in obj_info['metadata'].keys():
+    #                 key_parts = key.split('.')
+
+    #                 # umm...
+    #                 # if key_parts[0] == 'method' or key_parts[0] == 'app':
+    #                 #     parsed_id = ServiceUtils.parse_app_key(key_parts[1])
+    #                 #     if parsed_id is None:
+    #                 #         continue
+
+    #                 #     app = {
+    #                 #         # 'key': key_parts[1],
+    #                 #         'id': parsed_id,
+    #                 #         'count': int(obj_info['metadata'][key]),
+    #                 #         'obsolete': True
+    #                 #     }
+
+    #                 if key_parts[0] == 'method':
+    #                     parsed_id = ServiceUtils.parse_app_key(key_parts[1])
+    #                     if parsed_id is None:
+    #                         continue
+
+    #                     app_ref = parsed_id['shortRef']
+    #                     start = time.time()
+    #                     tag, app_info = self.app_cache.get(app_ref)
+    #                     query_time += (time.time() - start)
+
+    #                     # 'key': key_parts[1],
+    #                     app = {
+    #                         'id': parsed_id,
+    #                         'count': int(obj_info['metadata'][key]),
+    #                         'tag': tag
+    #                     }
+
+    #                     # print('app info??', app_ref, app_info)
+    #                     if app_info is None:
+    #                         app['notFound'] = True
+    #                     else:
+    #                         app_icon_url = None
+    #                         # if 'info' not in app_spec:
+    #                         #     raise ValueError('"info" key not found in app spec ' + app_ref)
+    #                         if 'icon' in app_info:
+    #                             app_icon_url = app_info['icon']['url']
+    #                         else:
+    #                             app_icon_url = None
+    #                         app['title'] = app_info['name']
+    #                         app['subtitle'] = app_info['subtitle']
+    #                         app['iconUrl'] = app_icon_url
+
+    #                     apps.append(app)
+    #                     cell_types['app'] += 1
+
+    #                 elif key_parts[0] == 'ipython' or key_parts[0] == 'jupyter':
+    #                     if key_parts[1] not in cell_types:
+    #                         cell_types[key_parts[1]] = 0
+    #                     cell_types[key_parts[1]] += int(obj_info['metadata'][key])
+
+    #         # condense apps into just one instance per module.id
+    #         apps_map = dict()
+    #         for app in apps:
+    #             ref = app['id']['shortRef']
+    #             if ref not in apps_map:
+    #                 apps_map[ref] = app
+    #             else:
+    #                 apps_map[ref]['count'] += app['count']
+
+    #         final_apps = [v for _, v in apps_map.iteritems()]
+
+    #         narrative_apps.append(final_apps)
+    #         narrative_cell_types.append(cell_types)
+    #     return narrative_apps, narrative_cell_types, query_time
 
     def list_all_narratives(self):
         # current_username = ctx['user_id']
@@ -235,15 +346,18 @@ class Model(object):
 
         # We end up with a map of username -> profile
         # Transform profiles into map of user to record.
+        # TODO: parse down profile record, also define in the spec
         # The profile record itself is simplified down to just what
         # we need
         profiles_cache = UserProfileCache(
             user_profile_url=self.config['services']['UserProfile'],
             path=self.config['caches']['userprofile']['path'])
         profiles = profiles_cache.get(list(users))
-        # profiles_map = dict()
+        profiles_map = dict()
         # for (username, profile) in itertools.izip(users, profiles):
         #     profiles_map[username] = profile
+        for [username, profile] in profiles:
+            profiles_map[username] = profile
 
 
         now = time.time()
@@ -291,7 +405,7 @@ class Model(object):
         # Profile a map of apps for a given tag
 
         print('parsing apps...')
-        (narrative_apps, narrative_cell_types, elapsed) = self.parse_apps(narrative_objects)
+        (narrative_apps, narrative_cell_types, apps, elapsed) = self.parse_apps(narrative_objects)
         print('...done')
 
         stats.append(['app_gets', elapsed])
@@ -309,7 +423,7 @@ class Model(object):
              obj,
              perms,
              cell_stats,
-             apps) in itertools.izip(narrative_workspaces,
+             napps) in itertools.izip(narrative_workspaces,
                                      narrative_objects,
                                      narrative_workspaces_perms,
                                      narrative_cell_types,
@@ -330,7 +444,7 @@ class Model(object):
                     'savedBy': obj['saved_by'],
                     'permissions': perms,
                     'cellTypes': cell_stats,
-                    'apps': apps
+                    'apps': napps
                 })
 
         now = time.time()
@@ -338,7 +452,8 @@ class Model(object):
         then = now
         result = {
             'narratives': narratives,
-            'profiles': profiles
+            'profiles': profiles_map,
+            'apps': apps
         }
         return result, stats
 

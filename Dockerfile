@@ -10,7 +10,7 @@ RUN apk upgrade --update-cache --available \
         linux-headers=4.4.6-r2 \
         make=4.2.1-r2 \
         openjdk8=8.171.11-r0 \
-        python2=2.7.15-r0
+        python2=2.7.15-r1
 
 RUN mkdir -p /kb \
     && git clone --depth=1 https://github.com/kbase/kb_sdk /kb/kb_sdk \
@@ -38,8 +38,8 @@ RUN apk upgrade --update-cache --available \
         make=4.2.1-r2 \
         openssl-dev=1.0.2o-r2 \
         py2-pip=10.0.1-r0 \
-        python2=2.7.15-r0 \
-        python2-dev=2.7.15-r0 \
+        python2=2.7.15-r1 \
+        python2-dev=2.7.15-r1 \
         sqlite=3.24.0-r0
 
 # install python dependencies

@@ -128,7 +128,8 @@ ListAllNarrativesParams is a reference to a hash where the following keys are de
 timestamp is a string
 ListAllNarrativesResult is a reference to a hash where the following keys are defined:
 	narratives has a value which is a reference to a list where each element is a DashboardService.Narrative
-	profiles has a value which is a reference to a list where each element is a DashboardService.UserProfile
+	profiles has a value which is a reference to a hash where the key is a DashboardService.Username and the value is a DashboardService.UserProfile
+	apps has a value which is a reference to a hash where the key is a DashboardService.AppID and the value is a DashboardService.App
 Narrative is a reference to a hash where the following keys are defined:
 	objectId has a value which is a DashboardService.obj_id
 	objectVersion has a value which is a DashboardService.obj_ver
@@ -146,12 +147,22 @@ obj_id is an int
 obj_ver is an int
 boolean is an int
 UserPermission is a reference to a hash where the following keys are defined:
-	username has a value which is a string
+	username has a value which is a DashboardService.Username
 	permission has a value which is a DashboardService.permission
+Username is a string
 permission is a string
 NarrativeCellStat is an UnspecifiedObject, which can hold any non-null object
-NarrativeApp is an UnspecifiedObject, which can hold any non-null object
+NarrativeApp is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	count has a value which is an int
 UserProfile is an UnspecifiedObject, which can hold any non-null object
+AppID is a string
+App is a reference to a hash where the following keys are defined:
+	id has a value which is a DashboardService.AppID
+	notFound has a value which is a DashboardService.boolean
+	title has a value which is a string
+	subtitle has a value which is a string
+	iconURL has a value which is a string
 Error is a reference to a hash where the following keys are defined:
 	message has a value which is a string
 	type has a value which is a string
@@ -178,7 +189,8 @@ ListAllNarrativesParams is a reference to a hash where the following keys are de
 timestamp is a string
 ListAllNarrativesResult is a reference to a hash where the following keys are defined:
 	narratives has a value which is a reference to a list where each element is a DashboardService.Narrative
-	profiles has a value which is a reference to a list where each element is a DashboardService.UserProfile
+	profiles has a value which is a reference to a hash where the key is a DashboardService.Username and the value is a DashboardService.UserProfile
+	apps has a value which is a reference to a hash where the key is a DashboardService.AppID and the value is a DashboardService.App
 Narrative is a reference to a hash where the following keys are defined:
 	objectId has a value which is a DashboardService.obj_id
 	objectVersion has a value which is a DashboardService.obj_ver
@@ -196,12 +208,22 @@ obj_id is an int
 obj_ver is an int
 boolean is an int
 UserPermission is a reference to a hash where the following keys are defined:
-	username has a value which is a string
+	username has a value which is a DashboardService.Username
 	permission has a value which is a DashboardService.permission
+Username is a string
 permission is a string
 NarrativeCellStat is an UnspecifiedObject, which can hold any non-null object
-NarrativeApp is an UnspecifiedObject, which can hold any non-null object
+NarrativeApp is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	count has a value which is an int
 UserProfile is an UnspecifiedObject, which can hold any non-null object
+AppID is a string
+App is a reference to a hash where the following keys are defined:
+	id has a value which is a DashboardService.AppID
+	notFound has a value which is a DashboardService.boolean
+	title has a value which is a string
+	subtitle has a value which is a string
+	iconURL has a value which is a string
 Error is a reference to a hash where the following keys are defined:
 	message has a value which is a string
 	type has a value which is a string
@@ -309,11 +331,14 @@ obj_id is an int
 obj_ver is an int
 boolean is an int
 UserPermission is a reference to a hash where the following keys are defined:
-	username has a value which is a string
+	username has a value which is a DashboardService.Username
 	permission has a value which is a DashboardService.permission
+Username is a string
 permission is a string
 NarrativeCellStat is an UnspecifiedObject, which can hold any non-null object
-NarrativeApp is an UnspecifiedObject, which can hold any non-null object
+NarrativeApp is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	count has a value which is an int
 Error is a reference to a hash where the following keys are defined:
 	message has a value which is a string
 	type has a value which is a string
@@ -352,11 +377,14 @@ obj_id is an int
 obj_ver is an int
 boolean is an int
 UserPermission is a reference to a hash where the following keys are defined:
-	username has a value which is a string
+	username has a value which is a DashboardService.Username
 	permission has a value which is a DashboardService.permission
+Username is a string
 permission is a string
 NarrativeCellStat is an UnspecifiedObject, which can hold any non-null object
-NarrativeApp is an UnspecifiedObject, which can hold any non-null object
+NarrativeApp is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	count has a value which is an int
 Error is a reference to a hash where the following keys are defined:
 	message has a value which is a string
 	type has a value which is a string
@@ -547,14 +575,14 @@ $params is a DashboardService.ShareNarrativeParams
 $error is a DashboardService.Error
 ShareNarrativeParams is a reference to a hash where the following keys are defined:
 	wsi has a value which is a DashboardService.WorkspaceIdentity
-	users has a value which is a reference to a list where each element is a DashboardService.username
+	users has a value which is a reference to a list where each element is a DashboardService.Username
 	permission has a value which is a DashboardService.permission
 WorkspaceIdentity is a reference to a hash where the following keys are defined:
 	workspace has a value which is a DashboardService.ws_name
 	id has a value which is a DashboardService.ws_id
 ws_name is a string
 ws_id is an int
-username is a string
+Username is a string
 permission is a string
 Error is a reference to a hash where the following keys are defined:
 	message has a value which is a string
@@ -572,14 +600,14 @@ $params is a DashboardService.ShareNarrativeParams
 $error is a DashboardService.Error
 ShareNarrativeParams is a reference to a hash where the following keys are defined:
 	wsi has a value which is a DashboardService.WorkspaceIdentity
-	users has a value which is a reference to a list where each element is a DashboardService.username
+	users has a value which is a reference to a list where each element is a DashboardService.Username
 	permission has a value which is a DashboardService.permission
 WorkspaceIdentity is a reference to a hash where the following keys are defined:
 	workspace has a value which is a DashboardService.ws_name
 	id has a value which is a DashboardService.ws_id
 ws_name is a string
 ws_id is an int
-username is a string
+Username is a string
 permission is a string
 Error is a reference to a hash where the following keys are defined:
 	message has a value which is a string
@@ -661,13 +689,13 @@ $params is a DashboardService.UnshareNarrativeParams
 $error is a DashboardService.Error
 UnshareNarrativeParams is a reference to a hash where the following keys are defined:
 	wsi has a value which is a DashboardService.WorkspaceIdentity
-	users has a value which is a reference to a list where each element is a DashboardService.username
+	users has a value which is a reference to a list where each element is a DashboardService.Username
 WorkspaceIdentity is a reference to a hash where the following keys are defined:
 	workspace has a value which is a DashboardService.ws_name
 	id has a value which is a DashboardService.ws_id
 ws_name is a string
 ws_id is an int
-username is a string
+Username is a string
 Error is a reference to a hash where the following keys are defined:
 	message has a value which is a string
 	type has a value which is a string
@@ -684,13 +712,13 @@ $params is a DashboardService.UnshareNarrativeParams
 $error is a DashboardService.Error
 UnshareNarrativeParams is a reference to a hash where the following keys are defined:
 	wsi has a value which is a DashboardService.WorkspaceIdentity
-	users has a value which is a reference to a list where each element is a DashboardService.username
+	users has a value which is a reference to a list where each element is a DashboardService.Username
 WorkspaceIdentity is a reference to a hash where the following keys are defined:
 	workspace has a value which is a DashboardService.ws_name
 	id has a value which is a DashboardService.ws_id
 ws_name is a string
 ws_id is an int
-username is a string
+Username is a string
 Error is a reference to a hash where the following keys are defined:
 	message has a value which is a string
 	type has a value which is a string
@@ -1404,32 +1432,6 @@ version has a value which is a DashboardService.obj_ver
 
 
 
-=head2 username
-
-=over 4
-
-
-
-=item Definition
-
-=begin html
-
-<pre>
-a string
-</pre>
-
-=end html
-
-=begin text
-
-a string
-
-=end text
-
-=back
-
-
-
 =head2 object_info
 
 =over 4
@@ -1819,14 +1821,46 @@ an UnspecifiedObject, which can hold any non-null object
 =begin html
 
 <pre>
-an UnspecifiedObject, which can hold any non-null object
+a reference to a hash where the following keys are defined:
+id has a value which is a string
+count has a value which is an int
+
 </pre>
 
 =end html
 
 =begin text
 
-an UnspecifiedObject, which can hold any non-null object
+a reference to a hash where the following keys are defined:
+id has a value which is a string
+count has a value which is an int
+
+
+=end text
+
+=back
+
+
+
+=head2 Username
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a string
+</pre>
+
+=end html
+
+=begin text
+
+a string
 
 =end text
 
@@ -1846,7 +1880,7 @@ an UnspecifiedObject, which can hold any non-null object
 
 <pre>
 a reference to a hash where the following keys are defined:
-username has a value which is a string
+username has a value which is a DashboardService.Username
 permission has a value which is a DashboardService.permission
 
 </pre>
@@ -1856,7 +1890,7 @@ permission has a value which is a DashboardService.permission
 =begin text
 
 a reference to a hash where the following keys are defined:
-username has a value which is a string
+username has a value which is a DashboardService.Username
 permission has a value which is a DashboardService.permission
 
 
@@ -1949,6 +1983,75 @@ an UnspecifiedObject, which can hold any non-null object
 
 
 
+=head2 AppID
+
+=over 4
+
+
+
+=item Description
+
+Just the subset of info that the front end will use
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a string
+</pre>
+
+=end html
+
+=begin text
+
+a string
+
+=end text
+
+=back
+
+
+
+=head2 App
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+id has a value which is a DashboardService.AppID
+notFound has a value which is a DashboardService.boolean
+title has a value which is a string
+subtitle has a value which is a string
+iconURL has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+id has a value which is a DashboardService.AppID
+notFound has a value which is a DashboardService.boolean
+title has a value which is a string
+subtitle has a value which is a string
+iconURL has a value which is a string
+
+
+=end text
+
+=back
+
+
+
 =head2 ListAllNarrativesResult
 
 =over 4
@@ -1971,7 +2074,8 @@ list<UserPermission> permissions;
 <pre>
 a reference to a hash where the following keys are defined:
 narratives has a value which is a reference to a list where each element is a DashboardService.Narrative
-profiles has a value which is a reference to a list where each element is a DashboardService.UserProfile
+profiles has a value which is a reference to a hash where the key is a DashboardService.Username and the value is a DashboardService.UserProfile
+apps has a value which is a reference to a hash where the key is a DashboardService.AppID and the value is a DashboardService.App
 
 </pre>
 
@@ -1981,7 +2085,8 @@ profiles has a value which is a reference to a list where each element is a Dash
 
 a reference to a hash where the following keys are defined:
 narratives has a value which is a reference to a list where each element is a DashboardService.Narrative
-profiles has a value which is a reference to a list where each element is a DashboardService.UserProfile
+profiles has a value which is a reference to a hash where the key is a DashboardService.Username and the value is a DashboardService.UserProfile
+apps has a value which is a reference to a hash where the key is a DashboardService.AppID and the value is a DashboardService.App
 
 
 =end text
@@ -2176,7 +2281,7 @@ Share Narrative
 <pre>
 a reference to a hash where the following keys are defined:
 wsi has a value which is a DashboardService.WorkspaceIdentity
-users has a value which is a reference to a list where each element is a DashboardService.username
+users has a value which is a reference to a list where each element is a DashboardService.Username
 permission has a value which is a DashboardService.permission
 
 </pre>
@@ -2187,7 +2292,7 @@ permission has a value which is a DashboardService.permission
 
 a reference to a hash where the following keys are defined:
 wsi has a value which is a DashboardService.WorkspaceIdentity
-users has a value which is a reference to a list where each element is a DashboardService.username
+users has a value which is a reference to a list where each element is a DashboardService.Username
 permission has a value which is a DashboardService.permission
 
 
@@ -2210,7 +2315,7 @@ permission has a value which is a DashboardService.permission
 <pre>
 a reference to a hash where the following keys are defined:
 wsi has a value which is a DashboardService.WorkspaceIdentity
-users has a value which is a reference to a list where each element is a DashboardService.username
+users has a value which is a reference to a list where each element is a DashboardService.Username
 
 </pre>
 
@@ -2220,7 +2325,7 @@ users has a value which is a reference to a list where each element is a Dashboa
 
 a reference to a hash where the following keys are defined:
 wsi has a value which is a DashboardService.WorkspaceIdentity
-users has a value which is a reference to a list where each element is a DashboardService.username
+users has a value which is a reference to a list where each element is a DashboardService.Username
 
 
 =end text

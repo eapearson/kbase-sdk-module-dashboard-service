@@ -53,20 +53,27 @@ class DashboardService(object):
            "boolean" (@range [0,1]), parameter "title" of String, parameter
            "savedTime" of Long, parameter "savedBy" of String, parameter
            "permissions" of list of type "UserPermission" -> structure:
-           parameter "username" of String, parameter "permission" of type
-           "permission" (Represents the permissions a user or users have to a
-           workspace: 'a' - administrator. All operations allowed. 'w' -
+           parameter "username" of type "Username", parameter "permission" of
+           type "permission" (Represents the permissions a user or users have
+           to a workspace: 'a' - administrator. All operations allowed. 'w' -
            read/write. 'r' - read. 'n' - no permissions.), parameter
            "cellTypes" of list of type "NarrativeCellStat" (typedef
            UnspecifiedObject NarrativePermission;) -> unspecified object,
-           parameter "apps" of list of type "NarrativeApp" -> unspecified
-           object, parameter "profiles" of list of type "UserProfile" (LIST
-           ALL NARRATIVES) -> unspecified object, (2) parameter "error" of
-           type "Error" -> structure: parameter "message" of String,
-           parameter "type" of String, parameter "code" of String, parameter
-           "info" of unspecified object, (3) parameter "stats" of type
-           "RunStats" -> structure: parameter "timings" of list of tuple of
-           size 2: String, Long
+           parameter "apps" of list of type "NarrativeApp" -> structure:
+           parameter "id" of String, parameter "count" of Long, parameter
+           "profiles" of mapping from type "Username" to type "UserProfile"
+           (LIST ALL NARRATIVES) -> unspecified object, parameter "apps" of
+           mapping from type "AppID" (Just the subset of info that the front
+           end will use) to type "App" -> structure: parameter "id" of type
+           "AppID" (Just the subset of info that the front end will use),
+           parameter "notFound" of type "boolean" (@range [0,1]), parameter
+           "title" of String, parameter "subtitle" of String, parameter
+           "iconURL" of String, (2) parameter "error" of type "Error" ->
+           structure: parameter "message" of String, parameter "type" of
+           String, parameter "code" of String, parameter "info" of
+           unspecified object, (3) parameter "stats" of type "RunStats" ->
+           structure: parameter "timings" of list of tuple of size 2: String,
+           Long
         """
         return self._client.call_method(
             'DashboardService.list_all_narratives',
@@ -86,17 +93,18 @@ class DashboardService(object):
            "isNarratorial" of type "boolean" (@range [0,1]), parameter
            "title" of String, parameter "savedTime" of Long, parameter
            "savedBy" of String, parameter "permissions" of list of type
-           "UserPermission" -> structure: parameter "username" of String,
-           parameter "permission" of type "permission" (Represents the
-           permissions a user or users have to a workspace: 'a' -
-           administrator. All operations allowed. 'w' - read/write. 'r' -
-           read. 'n' - no permissions.), parameter "cellTypes" of list of
+           "UserPermission" -> structure: parameter "username" of type
+           "Username", parameter "permission" of type "permission"
+           (Represents the permissions a user or users have to a workspace:
+           'a' - administrator. All operations allowed. 'w' - read/write. 'r'
+           - read. 'n' - no permissions.), parameter "cellTypes" of list of
            type "NarrativeCellStat" (typedef UnspecifiedObject
            NarrativePermission;) -> unspecified object, parameter "apps" of
-           list of type "NarrativeApp" -> unspecified object, (2) parameter
-           "error" of type "Error" -> structure: parameter "message" of
-           String, parameter "type" of String, parameter "code" of String,
-           parameter "info" of unspecified object
+           list of type "NarrativeApp" -> structure: parameter "id" of
+           String, parameter "count" of Long, (2) parameter "error" of type
+           "Error" -> structure: parameter "message" of String, parameter
+           "type" of String, parameter "code" of String, parameter "info" of
+           unspecified object
         """
         return self._client.call_method(
             'DashboardService.create_narrative',
@@ -127,7 +135,7 @@ class DashboardService(object):
            "ws_name", parameter "id" of type "ws_id" (from workspace_deluxe
            Note too that naming conventions for parameters using these types
            (may) also use the workspace_deluxe conventions. workspace),
-           parameter "users" of list of type "username", parameter
+           parameter "users" of list of type "Username", parameter
            "permission" of type "permission" (Represents the permissions a
            user or users have to a workspace: 'a' - administrator. All
            operations allowed. 'w' - read/write. 'r' - read. 'n' - no
@@ -148,7 +156,7 @@ class DashboardService(object):
            of type "ws_id" (from workspace_deluxe Note too that naming
            conventions for parameters using these types (may) also use the
            workspace_deluxe conventions. workspace), parameter "users" of
-           list of type "username"
+           list of type "Username"
         :returns: instance of type "Error" -> structure: parameter "message"
            of String, parameter "type" of String, parameter "code" of String,
            parameter "info" of unspecified object
