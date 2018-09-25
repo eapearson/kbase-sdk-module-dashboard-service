@@ -36,7 +36,7 @@ RUN apk upgrade --update-cache --available \
         libffi-dev=3.2.1-r4 \
         linux-headers=4.4.6-r2 \
         make=4.2.1-r2 \
-        openssl-dev=1.0.2o-r2 \
+        openssl-dev=1.0.2p-r0 \
         py2-pip=10.0.1-r0 \
         python2=2.7.15-r1 \
         python2-dev=2.7.15-r1 \
