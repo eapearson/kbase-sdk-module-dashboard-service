@@ -2,32 +2,34 @@ import itertools
 import apsw
 import json
 import os
+import math 
 
 from DashboardService.GenericClient import GenericClient
 from DashboardService.ServiceUtils import ServiceUtils
 
+MAX_WORKSPACES_PER_CALL = 1000
 
 class PermissionsCache:
     def __init__(self, path=None, workspace_url=None, username=None, token=None):
         if path is None:
             raise ValueError('The "path" argument is required')
-        if not isinstance(path, basestring):
+        if not isinstance(path, str):
             raise ValueError('The "path" argument must be a string')
         self.path = path
 
         if workspace_url is None:
             raise ValueError('The "workspace_url" argument is required')
-        if not isinstance(workspace_url, basestring):
+        if not isinstance(workspace_url, str):
             raise ValueError('The "workspace_url" argument must be a string')
         self.workspace_url = workspace_url
 
         if token is not None:
-            if not isinstance(token, basestring):
+            if not isinstance(token, str):
                 raise ValueError('The "token" argument must be a string')
             self.token = token
 
         if username is not None:
-            if not isinstance(username, basestring):
+            if not isinstance(username, str):
                 raise ValueError('The "username" argument must be a string')
             self.username = username
 
@@ -99,22 +101,35 @@ class PermissionsCache:
             token=self.token
         )
         workspaces_for_perms = [{'id': wsid} for (wsid, _username) in keys]
-        [workspaces_permissions] = ws_client.call_func('get_permissions_mass', [{
-            'workspaces': workspaces_for_perms
-        }])
+
+        all_workspaces_perms = []
+
+        workspaces_to_get = len(workspaces_for_perms)
+
+        batches_to_get = math.ceil(workspaces_to_get / MAX_WORKSPACES_PER_CALL)
+
+        for batch in range(0, batches_to_get):
+            batch_from = batch * MAX_WORKSPACES_PER_CALL
+            batch_to = batch_from + min(MAX_WORKSPACES_PER_CALL, workspaces_to_get - batch_from)
+            to_get = workspaces_for_perms[batch_from: batch_to]
+            [workspaces_permissions] = ws_client.call_func('get_permissions_mass', [{
+                'workspaces': to_get
+            }])
+            all_workspaces_perms.extend(workspaces_permissions['perms'])
 
         # Adjust the permissions:
         # - filter out the public "shared user"
+        print('all workspaces %s' % (len(all_workspaces_perms)))
         perms = []
-        for permissions in workspaces_permissions['perms']:
+        for permissions in all_workspaces_perms:
             if permissions is None:
                 perms.append(None)
             else:
-                perms.append([ [k,v] for k,v in permissions.iteritems() if k != '*'])
+                perms.append([ [k,v] for k,v in permissions.items() if k != '*'])
 
         # return a list of [workspace_id, perms]
         ret = []
-        for key, value in itertools.izip(keys, perms):
+        for key, value in zip(keys, perms):
             ret.append([key[0], value])
         return ret
 
@@ -166,7 +181,7 @@ class PermissionsCache:
                 items_to_fetch.append([key_wsid, key_username])
             else:
                 items_to_return.append([wsid, json.loads(value)])
-
+        print('...items to fetch: %s' % (len(items_to_fetch)))
         if (len(items_to_fetch)):
             fetched = self.fetch_items(items_to_fetch)
             items_to_add = [[wsid, self.username, perms] for [wsid, perms] in fetched]

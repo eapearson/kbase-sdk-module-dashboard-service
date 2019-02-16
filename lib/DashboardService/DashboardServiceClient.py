@@ -12,7 +12,7 @@ from __future__ import print_function
 try:
     # baseclient and this client are in a package
     from .baseclient import BaseClient as _BaseClient  # @UnusedImport
-except:
+except ImportError:
     # no they aren't
     from baseclient import BaseClient as _BaseClient  # @Reimport
 
@@ -23,7 +23,7 @@ class DashboardService(object):
             self, url=None, timeout=30 * 60, user_id=None,
             password=None, token=None, ignore_authrc=False,
             trust_all_ssl_certificates=False,
-            auth_svc='https://kbase.us/services/authorization/Sessions/Login'):
+            auth_svc='https://ci.kbase.us/services/auth/api/legacy/KBase/Sessions/Login'):
         if url is None:
             raise ValueError('A url is required')
         self._service_ver = None
@@ -75,9 +75,8 @@ class DashboardService(object):
            structure: parameter "timings" of list of tuple of size 2: String,
            Long
         """
-        return self._client.call_method(
-            'DashboardService.list_all_narratives',
-            [params], self._service_ver, context)
+        return self._client.call_method('DashboardService.list_all_narratives',
+                                        [params], self._service_ver, context)
 
     def create_narrative(self, param, context=None):
         """
@@ -106,9 +105,8 @@ class DashboardService(object):
            "type" of String, parameter "code" of String, parameter "info" of
            unspecified object
         """
-        return self._client.call_method(
-            'DashboardService.create_narrative',
-            [param], self._service_ver, context)
+        return self._client.call_method('DashboardService.create_narrative',
+                                        [param], self._service_ver, context)
 
     def delete_narrative(self, params, context=None):
         """
@@ -123,9 +121,8 @@ class DashboardService(object):
            of String, parameter "type" of String, parameter "code" of String,
            parameter "info" of unspecified object
         """
-        return self._client.call_method(
-            'DashboardService.delete_narrative',
-            [params], self._service_ver, context)
+        return self._client.call_method('DashboardService.delete_narrative',
+                                        [params], self._service_ver, context)
 
     def share_narrative(self, params, context=None):
         """
@@ -144,9 +141,8 @@ class DashboardService(object):
            of String, parameter "type" of String, parameter "code" of String,
            parameter "info" of unspecified object
         """
-        return self._client.call_method(
-            'DashboardService.share_narrative',
-            [params], self._service_ver, context)
+        return self._client.call_method('DashboardService.share_narrative',
+                                        [params], self._service_ver, context)
 
     def unshare_narrative(self, params, context=None):
         """
@@ -161,9 +157,8 @@ class DashboardService(object):
            of String, parameter "type" of String, parameter "code" of String,
            parameter "info" of unspecified object
         """
-        return self._client.call_method(
-            'DashboardService.unshare_narrative',
-            [params], self._service_ver, context)
+        return self._client.call_method('DashboardService.unshare_narrative',
+                                        [params], self._service_ver, context)
 
     def share_narrative_global(self, params, context=None):
         """
@@ -177,9 +172,8 @@ class DashboardService(object):
            of String, parameter "type" of String, parameter "code" of String,
            parameter "info" of unspecified object
         """
-        return self._client.call_method(
-            'DashboardService.share_narrative_global',
-            [params], self._service_ver, context)
+        return self._client.call_method('DashboardService.share_narrative_global',
+                                        [params], self._service_ver, context)
 
     def unshare_narrative_global(self, params, context=None):
         """
@@ -193,9 +187,8 @@ class DashboardService(object):
            of String, parameter "type" of String, parameter "code" of String,
            parameter "info" of unspecified object
         """
-        return self._client.call_method(
-            'DashboardService.unshare_narrative_global',
-            [params], self._service_ver, context)
+        return self._client.call_method('DashboardService.unshare_narrative_global',
+                                        [params], self._service_ver, context)
 
     def status(self, context=None):
         return self._client.call_method('DashboardService.status',

@@ -4,9 +4,12 @@ import os
 import itertools
 import time
 import hashlib
+import math
 
 from DashboardService.GenericClient import GenericClient
 from DashboardService.Errors import ServiceError
+
+MAX_SQL_VARIABLES = 500
 
 
 def get_path(from_dict, path):
@@ -24,13 +27,13 @@ class UserProfileCache:
     def __init__(self, path=None, user_profile_url=None):
         if path is None:
             raise ValueError('The "path" argument is required')
-        if not isinstance(path, basestring):
+        if not isinstance(path, str):
             raise ValueError('The "path" argument must be a string')
         self.path = path
 
         if user_profile_url is None:
             raise ValueError('The "user_profile_url" argument is required')
-        if not isinstance(user_profile_url, basestring):
+        if not isinstance(user_profile_url, str):
             raise ValueError('The "user_profile_url" argument must be a string')
         self.user_profile_url = user_profile_url
 
@@ -143,9 +146,9 @@ class UserProfileCache:
                 key = get_path(profile, ['user', 'username'])
                 value = json.dumps(profile)
                 hasher = hashlib.md5()
-                hasher.update(value)
+                hasher.update(value.encode('utf-8'))
                 hash = hasher.digest()
-                params = (key, value, len(value), buffer(hash))
+                params = (key, value, len(value), memoryview(hash))
                 self.conn.cursor().execute(update_temp_sql, params)
 
             self.conn.cursor().execute(insert_sql)
@@ -189,15 +192,24 @@ class UserProfileCache:
 
     def get(self, usernames):
         # TODO: handle usernames > 1000
-        placeholders = ','.join(list('?' for _ in usernames))
-        sql = '''
-        select key, value
-        from cache
-        where key in (%s)
-        ''' % (placeholders)
+        num_users = len(usernames)
+        batches = math.ceil(num_users / MAX_SQL_VARIABLES)
 
         profiles = []
-        with self.conn:
-            for key, value in self.conn.cursor().execute(sql, usernames).fetchall():
-                profiles.append([key, json.loads(value)])
+        for batch in range(0, batches):
+            batch_from = batch * MAX_SQL_VARIABLES
+            batch_to = batch_from + min(MAX_SQL_VARIABLES, num_users - batch_from)
+            usernames_to_get = usernames[batch_from: batch_to]
+
+            placeholders = ','.join(list('?' for _ in usernames_to_get))
+            sql = '''
+            select key, value
+            from cache
+            where key in (%s)
+            ''' % (placeholders)
+
+            with self.conn:
+                for key, value in self.conn.cursor().execute(sql, usernames_to_get).fetchall():
+                    profiles.append([key, json.loads(value)])
+
         return profiles

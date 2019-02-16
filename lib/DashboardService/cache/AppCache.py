@@ -8,13 +8,13 @@ class AppCache:
     def __init__(self, path=None, narrative_method_store_url=None):
         if path is None:
             raise ValueError('The "path" argument is required')
-        if not isinstance(path, basestring):
+        if not isinstance(path, str):
             raise ValueError('The "path" argument must be a string')
         self.path = path
 
         if narrative_method_store_url is None:
             raise ValueError('The "narrative_method_store_url" argument is required')
-        if not isinstance(narrative_method_store_url, basestring):
+        if not isinstance(narrative_method_store_url, str):
             raise ValueError('The "narrative_method_store_url" argument must be a string')
         self.narrative_method_store_url = narrative_method_store_url
         self.conn = apsw.Connection(self.path)

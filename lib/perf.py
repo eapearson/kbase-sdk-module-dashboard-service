@@ -1,7 +1,7 @@
 import apsw
 import json
 
-print 'hi'
+print('hi')
 
 db = apsw.Connection('test.db')
 

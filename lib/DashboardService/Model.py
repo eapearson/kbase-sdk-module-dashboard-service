@@ -310,6 +310,7 @@ class Model(object):
             key=lambda x: x.get('id')
         )
         now = time.time()
+        print('got %s in %s' % (len(narrative_workspaces), now- then))
         stats.append(['list_workspace', now - then])
         then = now
 
@@ -331,6 +332,7 @@ class Model(object):
         workspaces_to_get = [ws['id'] for ws in narrative_workspaces]
         narrative_workspaces_perms = workspace_cache.get(workspaces_to_get)
         now = time.time()
+        print('...got %s, %s in %s' % (len(workspaces_to_get), len(narrative_workspaces_perms), now - then))
         stats.append(['get_permissions', now - then])
         then = now
 
@@ -361,6 +363,7 @@ class Model(object):
 
 
         now = time.time()
+        print('...got %s in %s' % (len(profiles), now - then))
         stats.append(['user_profiles', now - then])
         then = now
 
@@ -396,8 +399,10 @@ class Model(object):
         print('done')
 
         now = time.time()
+        print('...got %s in %s' % (len(narrative_objects), now - then))
         stats.append(['narrative_objects', now - then])
         then = now
+        
 
         # APPS
         # Gather all apps in this narrative, 
@@ -423,11 +428,11 @@ class Model(object):
              obj,
              perms,
              cell_stats,
-             napps) in itertools.izip(narrative_workspaces,
-                                     narrative_objects,
-                                     narrative_workspaces_perms,
-                                     narrative_cell_types,
-                                     narrative_apps):
+             napps) in zip(narrative_workspaces,
+                            narrative_objects,
+                            narrative_workspaces_perms,
+                            narrative_cell_types,
+                            narrative_apps):
                 if obj is None:
                     continue
                 narratives.append({

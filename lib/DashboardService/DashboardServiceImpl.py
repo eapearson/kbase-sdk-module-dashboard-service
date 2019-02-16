@@ -30,7 +30,7 @@ class DashboardService:
     ######################################### noqa
     VERSION = "0.1.0"
     GIT_URL = "ssh://git@github.com/eapearson/kbase-sdk-module-dashboard-service"
-    GIT_COMMIT_HASH = "3a463c90289c412485f65bb806a58a0bc817da0d"
+    GIT_COMMIT_HASH = "d447ca6c443b628addd5cf249042a67bb910a4b2"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -161,18 +161,18 @@ class DashboardService:
         return [result, None, stats]
         #END list_all_narratives
 
-        # # At some point might do deeper type checking...
-        # if not isinstance(result, dict):
-        #     raise ValueError('Method list_all_narratives return value ' +
-        #                      'result is not type dict as required.')
-        # if not isinstance(error, dict):
-        #     raise ValueError('Method list_all_narratives return value ' +
-        #                      'error is not type dict as required.')
-        # if not isinstance(stats, dict):
-        #     raise ValueError('Method list_all_narratives return value ' +
-        #                      'stats is not type dict as required.')
-        # # return the results
-        # return [result, error, stats]
+        # At some point might do deeper type checking...
+        if not isinstance(result, dict):
+            raise ValueError('Method list_all_narratives return value ' +
+                             'result is not type dict as required.')
+        if not isinstance(error, dict):
+            raise ValueError('Method list_all_narratives return value ' +
+                             'error is not type dict as required.')
+        if not isinstance(stats, dict):
+            raise ValueError('Method list_all_narratives return value ' +
+                             'stats is not type dict as required.')
+        # return the results
+        return [result, error, stats]
 
     def create_narrative(self, ctx, param):
         """
@@ -224,14 +224,14 @@ class DashboardService:
         #END create_narrative
 
         # At some point might do deeper type checking...
-        # if not isinstance(result, dict):
-        #     raise ValueError('Method create_narrative return value ' +
-        #                      'result is not type dict as required.')
-        # if not isinstance(error, dict):
-        #     raise ValueError('Method create_narrative return value ' +
-        #                      'error is not type dict as required.')
-        # # return the results
-        # return [result, error]
+        if not isinstance(result, dict):
+            raise ValueError('Method create_narrative return value ' +
+                             'result is not type dict as required.')
+        if not isinstance(error, dict):
+            raise ValueError('Method create_narrative return value ' +
+                             'error is not type dict as required.')
+        # return the results
+        return [result, error]
 
     def delete_narrative(self, ctx, params):
         """
@@ -269,12 +269,12 @@ class DashboardService:
         return [None]
         #END delete_narrative
 
-        # # At some point might do deeper type checking...
-        # if not isinstance(error, dict):
-        #     raise ValueError('Method delete_narrative return value ' +
-        #                      'error is not type dict as required.')
-        # # return the results
-        # return [error]
+        # At some point might do deeper type checking...
+        if not isinstance(error, dict):
+            raise ValueError('Method delete_narrative return value ' +
+                             'error is not type dict as required.')
+        # return the results
+        return [error]
 
     def share_narrative(self, ctx, params):
         """
@@ -312,12 +312,12 @@ class DashboardService:
         return [None]
         #END share_narrative
 
-        # # At some point might do deeper type checking...
-        # if not isinstance(error, dict):
-        #     raise ValueError('Method share_narrative return value ' +
-        #                      'error is not type dict as required.')
-        # # return the results
-        # return [error]
+        # At some point might do deeper type checking...
+        if not isinstance(error, dict):
+            raise ValueError('Method share_narrative return value ' +
+                             'error is not type dict as required.')
+        # return the results
+        return [error]
 
     def unshare_narrative(self, ctx, params):
         """
@@ -356,12 +356,12 @@ class DashboardService:
         return [None]
         #END unshare_narrative
 
-        # # At some point might do deeper type checking...
-        # if not isinstance(error, dict):
-        #     raise ValueError('Method unshare_narrative return value ' +
-        #                      'error is not type dict as required.')
-        # # return the results
-        # return [error]
+        # At some point might do deeper type checking...
+        if not isinstance(error, dict):
+            raise ValueError('Method unshare_narrative return value ' +
+                             'error is not type dict as required.')
+        # return the results
+        return [error]
 
     def share_narrative_global(self, ctx, params):
         """
@@ -392,12 +392,12 @@ class DashboardService:
         model.share_narrative_global(wsi=wsi)
         #END share_narrative_global
 
-        # # At some point might do deeper type checking...
-        # if not isinstance(error, dict):
-        #     raise ValueError('Method share_narrative_global return value ' +
-        #                      'error is not type dict as required.')
-        # # return the results
-        # return [error]
+        # At some point might do deeper type checking...
+        if not isinstance(error, dict):
+            raise ValueError('Method share_narrative_global return value ' +
+                             'error is not type dict as required.')
+        # return the results
+        return [error]
 
     def unshare_narrative_global(self, ctx, params):
         """
@@ -431,11 +431,11 @@ class DashboardService:
         #END unshare_narrative_global
 
         # At some point might do deeper type checking...
-        # if not isinstance(error, dict):
-        #     raise ValueError('Method unshare_narrative_global return value ' +
-        #                      'error is not type dict as required.')
-        # # return the results
-        # return [error]
+        if not isinstance(error, dict):
+            raise ValueError('Method unshare_narrative_global return value ' +
+                             'error is not type dict as required.')
+        # return the results
+        return [error]
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",

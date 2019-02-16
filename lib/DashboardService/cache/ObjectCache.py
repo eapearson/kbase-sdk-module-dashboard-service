@@ -10,13 +10,13 @@ class ObjectCache(object):
     def __init__(self, path=None, workspace_url=None, token=None):
         if path is None:
             raise ValueError('The "path" argument is required')
-        if not isinstance(path, basestring):
+        if not isinstance(path, str):
             raise ValueError('The "path" argument must be a string')
         self.path = path
 
         if workspace_url is None:
             raise ValueError('The "workspace_url" argument is required')
-        if not isinstance(workspace_url, basestring):
+        if not isinstance(workspace_url, str):
             raise ValueError('The "workspace_url" argument must be a string')
         self.workspace_url = workspace_url
 

@@ -23,7 +23,7 @@ class GenericClientTest(unittest.TestCase):
         
         config_file = environ.get('KB_DEPLOYMENT_CONFIG', None)
         cls.cfg = {}
-        config = ConfigParser()
+        config = _ConfigParser()
         config.read(config_file)
         for nameval in config.items('DashboardService'):
             cls.cfg[nameval[0]] = nameval[1]
@@ -33,7 +33,7 @@ class GenericClientTest(unittest.TestCase):
         test_cfg_text = "[test]\n"
         with open(test_cfg_file, "r") as f:
             test_cfg_text += f.read()
-        config = ConfigParser()
+        config = _ConfigParser()
         config.readfp(StringIO.StringIO(test_cfg_text))
         test_cfg_dict = dict(config.items("test"))
         
@@ -214,10 +214,10 @@ class GenericClientTest(unittest.TestCase):
                 # print('ERR', err)
                 self.assertTrue(test['expect']['exception'])
                 self.assertIsInstance(err, test['expect']['exceptionClass'])
-                self.assertIsInstance(str(err), basestring)
+                self.assertIsInstance(str(err), str)
                 # print('ERR code', err.args[1])
                 # print(test['expect']['error'])
-                for key, value in test['expect']['error'].iteritems():
+                for key, value in enumerate(test['expect']['error']):
                     self.assertEquals(getattr(err, key), value)
 
     def test_get(self):

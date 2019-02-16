@@ -15,7 +15,7 @@ class DynamicServiceClient:
         self.token = token
 
     def call_func(self, method, params):
-        if not isinstance(method, basestring):
+        if not isinstance(method, str):
             raise ValueError('"method" must be a string')
         if not isinstance(params, list):
             raise ValueError('"params" must be an array')

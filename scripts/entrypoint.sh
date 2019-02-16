@@ -1,6 +1,10 @@
 #!/bin/bash
 
-python ./scripts/prepare_deploy_cfg.py ./deploy.cfg ./work/config.properties
+echo "Preparing deploy config..."
+python3 ./scripts/prepare_deploy_cfg.py ./deploy.cfg ./work/config.properties
+echo "Done"
+echo `pwd`
+cat ./deploy.cfg
 
 if [ -f ./work/token ] ; then
   export KB_AUTH_TOKEN=$(<./work/token)

@@ -41,7 +41,7 @@ class Validation(object):
     @classmethod
     def validate_list_all_narratives(cls, ctx, parameter):
         # nothing to do yet...
-        just_modified_after, error = cls.check_param(parameter, 'just_modified_after', False, basestring)
+        just_modified_after, error = cls.check_param(parameter, 'just_modified_after', False, str)
         if error:
             return None, error
 
@@ -52,11 +52,11 @@ class Validation(object):
     @classmethod
     def validate_create_narrative(cls, ctx, parameter):
         # nothing to do yet...
-        title, error = cls.check_param(parameter, 'title', True, basestring)
+        title, error = cls.check_param(parameter, 'title', True, str)
         if error:
             return None, error
 
-        name, error = cls.check_param(parameter, 'name', False, basestring)
+        name, error = cls.check_param(parameter, 'name', False, str)
         if error:
             return None, error
 
@@ -85,7 +85,7 @@ class Validation(object):
         if error is not None:
             return None, error
 
-        permission, error = cls.check_param(parameter, 'permission', True, basestring)
+        permission, error = cls.check_param(parameter, 'permission', True, str)
         if error is not None:
             return None, error
 
@@ -134,7 +134,7 @@ class Validation(object):
     def validate_config(cls, config):
         for name in ['cache-directory', 'workspace-url', 'service-wizard', 
                      'narrative-method-store-url', 'user-profile-service-url']:
-            value, error = cls.check_param(config, name, True, basestring)
+            value, error = cls.check_param(config, name, True, str)
             if error:
                 return None, error['message']
 

@@ -41,7 +41,7 @@ class ExcelDictReader(object):
                 raise IndexError('Workbook has no sheet for index {}'.format(
                     sheet))
             self._sheet = self._xl.sheet_by_index(sheet)
-        elif isinstance(sheet, basestring):
+        elif isinstance(sheet, str):
             if sheet not in self._xl.sheet_names():
                 raise ValueError('No such sheet name: {}'.format(sheet))
             self._sheet = self._xl.sheet_by_index(sheet)

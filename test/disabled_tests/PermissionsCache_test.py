@@ -25,7 +25,7 @@ class UserProfileTest(unittest.TestCase):
         cls.token = token
         config_file = environ.get('KB_DEPLOYMENT_CONFIG', None)
         cls.cfg = {}
-        config = ConfigParser()
+        config = _ConfigParser()
         config.read(config_file)
         for nameval in config.items('DashboardService'):
             cls.cfg[nameval[0]] = nameval[1]
@@ -34,7 +34,7 @@ class UserProfileTest(unittest.TestCase):
         test_cfg_text = "[test]\n"
         with open(test_cfg_file, "r") as f:
             test_cfg_text += f.read()
-        config = ConfigParser()
+        config = _ConfigParser()
         config.readfp(StringIO.StringIO(test_cfg_text))
         test_cfg_dict = dict(config.items("test"))
 
